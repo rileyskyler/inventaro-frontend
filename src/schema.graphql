@@ -1,0 +1,43 @@
+
+
+type Stock {
+    _id: ID
+    quantity: Int
+    item: Item
+}
+
+type Item {
+    _id: ID
+    name: String
+    price: Int
+}
+
+type User {
+    _id: ID
+    name: String
+    locations: [Location]
+}
+
+type Location {
+    _id: ID
+    name: String
+    users: [User!]!
+    inventory: [Stock!]!
+}
+
+input UserInput {
+    name: String
+}
+
+type RootQuery {
+    users: [User!]!
+}
+
+type RootMutation {
+    createUser(userInput: UserInput): User!
+}
+
+schema {
+    query: RootQuery
+    mutation: RootMutation
+}
