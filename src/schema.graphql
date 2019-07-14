@@ -1,5 +1,3 @@
-
-
 type Stock {
     _id: ID
     quantity: Int
@@ -14,7 +12,9 @@ type Item {
 
 type User {
     _id: ID
-    name: String
+    username: String
+    password: String
+    email: String
     locations: [Location]
 }
 
@@ -25,12 +25,27 @@ type Location {
     inventory: [Stock!]!
 }
 
+type Authentication {
+    userId: ID!
+    token: String!
+    tokenExpiration: String!
+}
+
 input UserInput {
-    name: String
+    username: String!
+    email: String!
+    password: String!
+}
+
+input LoginInput {
+    email: String!
+    password: String!
 }
 
 type RootQuery {
     users: [User!]!
+    user: User!
+    login(loginInput: LoginInput!) : Authentication!
 }
 
 type RootMutation {

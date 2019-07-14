@@ -5,7 +5,8 @@ const dotenv = require('dotenv');
 const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 const http = require('http');
-const fs = require('fs')
+const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 dotenv.config();
 const Schema = mongoose.Schema;
@@ -37,13 +38,93 @@ const init = () => {
 const main = async (app) => {
 
   const userSchema = new Schema({
-    name: String
+    username: {
+      type: String,
+      required: true
+    },
+    password: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true
+    },
+    locations: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Location'
+      }
+    ]
   });
-
   const User = mongoose.model("User", userSchema);
 
+  const itemSchema = new Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    price: {
+      type: Int
+    }
+  });
 
+  const locationSchema = new Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    users: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+    inventory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Stock'
+      }
+    ]
+  });
+
+  const locationSchema = new Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    users: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+    inventory: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Stock'
+      }
+    ]
+  });
+
+  const stockSchema = new Schema({
+    quantity: {
+      type: Number,
+      required: true
+    },
+    item: {
+      type: Schema.Types.ObjectId,
+      ref: 'Item'
+    }
+  });
+
+  const Item = mongoose.model("Item", itemSchema);
+  const User = mongoose.model("User", userSchema);
+  const Location = mongoose.model("Location", locationSchema);
+  const Stock = mongoose.model("Stock", stockSchema);
   
+
+
   app.use((req, res, next) => {
     console.log('middlewear')
     return next();
@@ -55,69 +136,108 @@ const main = async (app) => {
     ),
     rootValue: {
 
-    createUser: async ({userInput}) => {
-      let user;
-      try {
-        user = new User({name: userInput.name});
-      }
-      catch (err) {
-        throw err;
-      }
-      user.save();
-      return {...user._doc, _id: user.id};
-    },
+      createUser: async (args) => {
+        
+        try {
+          
+          const userExists = await User.findOne({email: args.userInput.email})
+          
+          if(userExists) {
+            throw new Error('User already exists!')
+          } else {
+
+            const hashedPassword = await bcrypt.hash(args.userInput.password, 12)
+
+            const user = new User({
+              username: args.userInput.username,
+              email: args.userInput.email,
+              password: hashedPassword
+            })
+
+            const res = await user.save()
+            console.log(res._doc.username)
+
+            return {...res._doc, _id: res.id, password: ''}
+          }
+        }
+        catch (err) {
+            throw err
+        }
+      },
     
-    
-    users: async () => {
-      try {
-        return (await User.find()).map((user) => {
+      users: async () => {
+        try {
+          return (await User.find()).map((user) => {
+            return {
+              ...user._doc,
+              _id: user.id
+            };
+          });
+        }
+        catch (err) {
+          throw err;
+        }
+      },
+
+      user: async (args, req) => {
+        
+        try {
+          const user = await User.findById(req.userId);
           return {
             ...user._doc,
             _id: user.id,
-            locations: 
-          };
-        });
-      }
-      catch (err) {
-        throw err;
-      }
-      const userLocations = async (locationIds) => {
-        
-      }
-      test();
-    },
+            locations: userLocations.bind(this, user._doc.locations)
+          }
+        }
+        catch (err) {
+          throw err
+        }
 
-    user: async (args, req) => {
-      
-      try {
-        const user = await User.findById(req.userId);
-        return {
-          ...user._doc,
-          _id: user.id
-          
+      userLocations: async (locationIds) => {
+        try {
+            return (await Location.find({ _id: {$in: locationIds} })).map((location) => {
+                return {
+                    ...location._doc,
+                    _id: location.id
+                }
+            })
+        }
+        catch (err) {
+            throw err
         }
       }
-      catch (err) {
-        throw err
-      }
     },
 
-    userLocations: async (locationIds) => {
-                
-      this.conf.logger.info(`[Registry] Locations`);
-      
+    login: async (args) => {
+       
       try {
-          return (await Location.find({ _id: {$in: locationIds} })).map((location) => {
-              return {
-                  ...location._doc,
-                  _id: location.id
+          
+          const userToLogin = await User.findOne({email: args.loginInput.email})
+          
+          if(!userToLogin) {
+              throw new Error('User not found!')
+          }
+          else {
+              
+              const authenticated = await bcrypt.compare(args.loginInput.password, userToLogin.password)
+              if(!authenticated) {
+                  throw new Error('Password is incorrect!')
               }
-          })
+              else {
+                  const token = jwt.sign({userId: userToLogin.id, email: userToLogin.email}, process.env.AUTH_KEY, {
+                      expiresIn: '1h'
+                  })
+
+                  return { userId: userToLogin.id, token, tokenExpiration: 1}
+              }
+          }
       }
       catch (err) {
           throw err
       }
   },
+  
+
   },
     graphiql: true,
   }));
