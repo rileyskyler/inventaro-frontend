@@ -122,7 +122,6 @@ const main = async (app) => {
   const User = mongoose.model("User", userSchema);
   const Location = mongoose.model("Location", locationSchema);
   const Stock = mongoose.model("Stock", stockSchema);
-  
 
 
   app.use((req, res, next) => {
@@ -136,34 +135,7 @@ const main = async (app) => {
     ),
     rootValue: {
 
-      createUser: async (args) => {
-        
-        try {
-          
-          const userExists = await User.findOne({email: args.userInput.email})
-          
-          if(userExists) {
-            throw new Error('User already exists!')
-          } else {
 
-            const hashedPassword = await bcrypt.hash(args.userInput.password, 12)
-
-            const user = new User({
-              username: args.userInput.username,
-              email: args.userInput.email,
-              password: hashedPassword
-            })
-
-            const res = await user.save()
-            console.log(res._doc.username)
-
-            return {...res._doc, _id: res.id, password: ''}
-          }
-        }
-        catch (err) {
-            throw err
-        }
-      },
     
       users: async () => {
         try {
@@ -180,7 +152,6 @@ const main = async (app) => {
       },
 
       user: async (args, req) => {
-        
         try {
           const user = await User.findById(req.userId);
           return {
@@ -192,52 +163,35 @@ const main = async (app) => {
         catch (err) {
           throw err
         }
+      },
 
-      userLocations: async (locationIds) => {
+      login: async (args) => {
+        
         try {
-            return (await Location.find({ _id: {$in: locationIds} })).map((location) => {
-                return {
-                    ...location._doc,
-                    _id: location.id
-                }
-            })
-        }
-        catch (err) {
-            throw err
-        }
-      }
-    },
-
-    login: async (args) => {
-       
-      try {
-          
+            
           const userToLogin = await User.findOne({email: args.loginInput.email})
-          
+            
           if(!userToLogin) {
               throw new Error('User not found!')
           }
           else {
               
-              const authenticated = await bcrypt.compare(args.loginInput.password, userToLogin.password)
-              if(!authenticated) {
-                  throw new Error('Password is incorrect!')
-              }
-              else {
-                  const token = jwt.sign({userId: userToLogin.id, email: userToLogin.email}, process.env.AUTH_KEY, {
-                      expiresIn: '1h'
-                  })
-
-                  return { userId: userToLogin.id, token, tokenExpiration: 1}
-              }
+            const authenticated = await bcrypt.compare(args.loginInput.password, userToLogin.password)
+            if(!authenticated) {
+              throw new Error('Password is incorrect!')
+            }
+            else {
+              const token = jwt.sign({userId: userToLogin.id, email: userToLogin.email}, process.env.AUTH_KEY, {
+                  expiresIn: '1h'
+              })
+              return { userId: userToLogin.id, token, tokenExpiration: 1}
+            }
           }
-      }
-      catch (err) {
-          throw err
-      }
-  },
-  
-
+        }
+        catch (err) {
+            throw err
+        }
+    }
   },
     graphiql: true,
   }));
