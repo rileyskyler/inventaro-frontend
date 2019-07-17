@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -12,24 +12,9 @@ import Landing from './Landing';
 import Login from './Login';
 import SignUp from './SignUp';
 
-import {
-    BrowserRouter,
-    Link,
-    Route
-  } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
-  const styles = makeStyles(theme => ({
-      root: {
-        padding: theme.spacing(3, 2),
-        flexGrow: 1,
-      },
-      menuButton: {
-        marginRight: theme.spacing(2),
-      },
-      title: {
-        flexGrow: 1,
-      },
-  }));
+
 
 class NavBar extends React.Component {
   constructor() {
@@ -49,13 +34,12 @@ class NavBar extends React.Component {
   
   render() {
     
-    console.log(this.props.classes)
     return (
       // <div>
       //   <button onClick={this.handleClick}>Button Swag</button>
       //   <span>{this.state.isToggled + ''}</span>
       // </div>
-      <BrowserRouter>
+      
         <div className={this.props.classes.root}>
           <AppBar position="static">
             <Toolbar>
@@ -70,19 +54,9 @@ class NavBar extends React.Component {
             </Toolbar>
           </AppBar>
         </div>
-        <div>
-          <Paper className={this.props.classes.root}>
-            <Typography variant="h5" component="h3">
-              Login
-            </Typography>
-            <Typography component="p">
-              Paper can be used to build surface or other elements for your application.
-            </Typography>
-          </Paper>
-        </div>
-      </BrowserRouter>
+
     );
   }
 }
 
-export default withStyles(styles)(NavBar);
+export default NavBar;

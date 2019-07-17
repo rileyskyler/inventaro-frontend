@@ -4,12 +4,13 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { BrowserRouter } from 'react-router-dom';
 
 ReactDOM.render(
-    <React.Fragment>
+    <BrowserRouter>
         <CssBaseline />
         <App />
-    </React.Fragment>,
+    </BrowserRouter>,
     document.getElementById('root')
 );
 
