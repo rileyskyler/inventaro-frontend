@@ -135,8 +135,6 @@ const main = async (app) => {
     ),
     rootValue: {
 
-
-    
       users: async () => {
         try {
           return (await User.find()).map((user) => {

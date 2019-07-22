@@ -4,6 +4,8 @@ type Stock {
     item: Item
 }
 
+# add sale object
+
 type Item {
     _id: ID
     name: String
