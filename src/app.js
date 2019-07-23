@@ -30,7 +30,7 @@ const init = async () => {
 
 const main = async (app) => {
 
-  app.use(auth)
+  app.use(auth);
 
   app.use("/api", graphqlHTTP({
 
