@@ -6,13 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import Paper from '@material-ui/core/Paper';
-
-import Landing from './Landing';
-import Login from './Login';
-import SignUp from './SignUp';
-
-import { BrowserRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 
 
@@ -35,10 +29,6 @@ class NavBar extends React.Component {
   render() {
     
     return (
-      // <div>
-      //   <button onClick={this.handleClick}>Button Swag</button>
-      //   <span>{this.state.isToggled + ''}</span>
-      // </div>
       
         <div className={this.props.classes.root}>
           <AppBar position="static">
@@ -49,8 +39,8 @@ class NavBar extends React.Component {
               <Typography variant="h6" className={this.props.classes.title}>
                 Inventaro
               </Typography>
-                <Button onClick={() => this.handleClick()} color="inherit">Login</Button>
-                <Button onClick={() => this.handleClick()} color="inherit">Signup</Button>
+                <Button onClick={() => this.props.history.push(`/login`)} color="inherit">Login</Button>
+                <Button onClick={() => this.props.history.push(`/register`)} color="inherit">Register</Button>
             </Toolbar>
           </AppBar>
         </div>
@@ -59,4 +49,4 @@ class NavBar extends React.Component {
   }
 }
 
-export default NavBar;
+export default withRouter(NavBar);

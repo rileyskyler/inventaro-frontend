@@ -1,16 +1,12 @@
 import React from 'react';
-
 import Navbar from './NavBar';
 import Landing from './Landing';
 import Dashboard from './Dashboard';
-
+import Login from './Login';
+import Register from './Register';
+import { withRouter } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-
-import {
-  Link,
-  Route,
-  Switch
-} from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 const styles = makeStyles(theme => ({
   root: {
@@ -25,37 +21,62 @@ const styles = makeStyles(theme => ({
   },
 }));
 
+
 class App extends React.Component {
   
   constructor() {
     super()
-
+    
     this.state = {
-      isLoggedIn: false
+      isAuth: false
     }
+    
     this.loginUser = this.loginUser.bind(this);
   }
+  
+  componentDidMount() {
 
-  loginUser() {
+  }
+  
+  loginUser({email, password}) {
+    
     this.setState({
-      isLoggedIn: true
+      isAuth: true
     })
+    this.props.history.push(`/dashboard`);
+  }
+
+  registerUser({email, password}) {
+    // register user
+    this.loginUser()
   }
   
   render() {
 
     const dashboard = () => {
       return (
-        <Dashboard
-        />
-
+        <Dashboard/>
       )
     }
 
     const landing = () => {
       return (
-        <Landing
+        <Landing/>
+      )
+    }
+
+    const login = () => {
+      return (
+        <Login
           loginUser={this.loginUser}
+        />
+      )
+    }
+
+    const register = () => {
+      return (
+        <Register
+          registerUser={this.registerUser}
         />
       )
     }
@@ -64,9 +85,12 @@ class App extends React.Component {
       <div>
         <Navbar 
           classes={this.props.classes}
+          isAuth={this.state.isAuth}
         />
         <Switch>
           <Route path='/' component={landing} exact/>
+          <Route path='/login' component={login} exact/>
+          <Route path='/register' component={register} exact/>
           <Route path='/dashboard' component={dashboard} exact/>
         </Switch>
       </div>
@@ -74,4 +98,4 @@ class App extends React.Component {
   }
 }
 
-export default withStyles(styles)(App);
+export default withStyles(styles)(withRouter(App));
