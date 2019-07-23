@@ -42,14 +42,18 @@ input LoginInput {
     password: String!
 }
 
+input LocationInput {
+    name: String
+}
+
 type RootQuery {
-    users: [User!]!
     user: User!
     login(loginInput: LoginInput!) : Authentication!
 }
 
 type RootMutation {
-    createUser(userInput: UserInput): User!
+    createUser(userInput: UserInput!): User!
+    createLocation(locationInput: LocationInput!): Location!
 }
 
 schema {
