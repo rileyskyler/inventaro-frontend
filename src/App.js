@@ -44,26 +44,24 @@ class App extends React.Component {
 
     let res;
 
-    try {
-
+    let headers = {
+      'Content-Type': 'application/json',
+      'Authorization': this.state.userToken
+    };
+    
+    try {  
       res = await fetch('http://localhost:1337/api', {
         method: 'POST',
         body: JSON.stringify(reqBody),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers
       })
-
-      console.log(res)
-
     }
     catch (err) {
       throw err
     }
 
     if(res.status === 200) {
-      const { data } = await res.json();
-      return data;
+      return res.json();
     }
     
   }
@@ -76,9 +74,10 @@ class App extends React.Component {
       `
     };
 
-    const { login: { token } } = await this.apiFetch(reqBody);
+    const res = await this.apiFetch(reqBody);
     
-    if(token) {
+    if(res) {
+      const token = res.data.login.token;
       console.log(token);
       this.setState({token});
       this.props.history.push("/dashboard");
@@ -95,9 +94,12 @@ class App extends React.Component {
       `
     };
 
+
     const res = await this.apiFetch(reqBody);
 
-    this.loginUser({email, password});
+    if(res) {
+      this.loginUser({email, password});
+    }
 
   }
   
