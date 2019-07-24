@@ -1,47 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextField, Button } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 
-class Login extends React.Component {
-  constructor(props) {
-    super(props)
-  }
 
-  handleClick() {
-    this.props.loginUser()
-    this.props.history.push("/dashboard");
-  }
+const Login = props => {
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  render() {
-    return (
-      <div>
-        <h3>Login</h3>
-        <form noValidate autoComplete="off">
-          <TextField
-            id="outlined-email-input"
-            label="Email or username"
-            // className={classes.textField}
-            type="email"
-            name="email"
-            autoComplete="email"
-            margin="normal"
-            variant="outlined"
-          />
-          <TextField
-            id="zoutlined-email-input"
-            label="Password"
-            // className={classes.textField}
-            type="password"
-            name="password"
-            autoComplete="email"
-            margin="normal"
-            variant="outlined"
-          />
-          <Button onClick={() => this.handleClick()}>Login</Button>
-        </form>
-      </div>
-    )
-  }
+  return (
+    <div>
+      <h3>Login</h3>
+      <form noValidate autoComplete="off">
+        <TextField
+          onChange={(e) => setEmail(e.target.value)}
+          id="email"
+          label="Email or username"
+          type="email"
+          name="email"
+          autoComplete="email"
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          onChange={(e) => setPassword(e.target.value)}
+          id="password"
+          label="Password"
+          type="password"
+          name="password"
+          autoComplete="email"
+          margin="normal"
+          variant="outlined"
+        />
+        <Button onClick={() => props.loginUser({email, password})}>Login</Button>
+        <Button onClick={() => props.history.push('/')}>Cancel</Button>
+      </form>
+    </div>
+  )
 }
 
 export default withRouter(Login);
