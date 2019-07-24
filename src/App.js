@@ -28,27 +28,77 @@ class App extends React.Component {
     super()
     
     this.state = {
-      isAuth: false
+      isAuth: false,
+      userToken: ''
     }
     
     this.loginUser = this.loginUser.bind(this);
+    this.registerUser = this.registerUser.bind(this);
   }
   
   componentDidMount() {
 
   }
   
-  loginUser({email, password}) {
+  async apiFetch(reqBody) {
+
+    let res;
+
+    try {
+
+      res = await fetch('http://localhost:1337/api', {
+        method: 'POST',
+        body: JSON.stringify(reqBody),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log(res)
+
+    }
+    catch (err) {
+      throw err
+    }
+
+    if(res.status === 200) {
+      const { data } = await res.json();
+      return data;
+    }
     
-    this.setState({
-      isAuth: true
-    })
-    this.props.history.push(`/dashboard`);
   }
 
-  registerUser({email, password}) {
-    // register user
-    this.loginUser()
+  async loginUser({email, password}) {
+
+    const reqBody = {
+      query: `
+        query { login(loginInput: {email:"${email}", password: "${password}"}){token}}
+      `
+    };
+
+    const { login: { token } } = await this.apiFetch(reqBody);
+    
+    if(token) {
+      console.log(token);
+      this.setState({token});
+      this.props.history.push("/dashboard");
+    }
+
+  }
+
+  async registerUser({username, email, password}) {
+
+
+    const reqBody = {
+      query: `
+        mutation {createUser(userInput: {username: "${username}", email: "${email}" password: "${password}"}) {_id, username, email, password}}
+      `
+    };
+
+    const res = await this.apiFetch(reqBody);
+
+    this.loginUser({email, password});
+
   }
   
   render() {
