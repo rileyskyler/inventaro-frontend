@@ -5,15 +5,16 @@ const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 const http = require('http');
 const fs = require('fs');
+const cors = require('cors');
 
 const Logger = require('./util/Logger');
 const RootResolver = require('./resolvers/root');
-const auth = require('./util/auth');
+const Auth = require('./util/Auth');
 
 dotenv.config();
 
 const init = async () => {
-
+  
   const app = express();
 
   await mongoose.connect(
@@ -29,8 +30,10 @@ const init = async () => {
 };
 
 const main = async (app) => {
-
-  app.use(auth);
+  
+  app.use(cors())
+  
+  app.use(Auth);
 
   app.use("/api", graphqlHTTP({
 

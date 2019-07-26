@@ -11,13 +11,16 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^3.0.6",
+    "cors": "^2.8.5",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "express-graphql": "^0.8.0",
     "graphql": "^14.4.2",
     "http": "0.0.0",
+    "javascript-barcode-reader": "^0.4.15",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.6.4",
+    "quagga": "^0.12.1",
     "winston": "^3.2.1"
   }
 }
