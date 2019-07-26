@@ -21,7 +21,6 @@ const styles = makeStyles(theme => ({
   },
 }));
 
-
 class App extends React.Component {
   
   constructor() {
@@ -29,26 +28,21 @@ class App extends React.Component {
     
     this.state = {
       isAuth: false,
-      userToken: ''
+      token: ''
     }
     
     this.loginUser = this.loginUser.bind(this);
     this.registerUser = this.registerUser.bind(this);
   }
   
-  componentDidMount() {
-
-  }
+  async fetchApi(reqBody) {
   
-  async apiFetch(reqBody) {
-
-    let res;
-
     let headers = {
       'Content-Type': 'application/json',
-      'Authorization': this.state.userToken
+      'Authorization': this.state.token
     };
     
+    let res;
     try {  
       res = await fetch('http://localhost:1337/api', {
         method: 'POST',
@@ -74,13 +68,12 @@ class App extends React.Component {
       `
     };
 
-    const res = await this.apiFetch(reqBody);
+    const res = await this.fetchApi(reqBody);
     
     if(res) {
       const token = res.data.login.token;
-      console.log(token);
-      this.setState({token});
-      this.props.history.push("/dashboard");
+      this.setState({token})
+      this.props.history.push('/');
     }
 
   }
@@ -95,7 +88,7 @@ class App extends React.Component {
     };
 
 
-    const res = await this.apiFetch(reqBody);
+    const res = await this.fetchApi(reqBody);
 
     if(res) {
       this.loginUser({email, password});
@@ -104,16 +97,12 @@ class App extends React.Component {
   }
   
   render() {
-
-    const dashboard = () => {
+    
+    const primary = () => {
       return (
-        <Dashboard/>
-      )
-    }
-
-    const landing = () => {
-      return (
-        <Landing/>
+        this.state.token
+        ? <Dashboard />
+        : <Landing/>
       )
     }
 
@@ -133,6 +122,18 @@ class App extends React.Component {
       )
     }
 
+    const items = () => {
+      return (
+        <h1>Items</h1>
+      )
+    }
+
+    const locations = () => {
+      return (
+        <h1>Locations</h1>
+      )
+    }
+
     return (
       <div>
         <Navbar 
@@ -140,10 +141,11 @@ class App extends React.Component {
           isAuth={this.state.isAuth}
         />
         <Switch>
-          <Route path='/' component={landing} exact/>
+          <Route path='/' component={primary} exact/>
           <Route path='/login' component={login} exact/>
           <Route path='/register' component={register} exact/>
-          <Route path='/dashboard' component={dashboard} exact/>
+          <Route path='/items' component={items} exact/>
+          <Route path='/locations' component={locations} exact/>
         </Switch>
       </div>
     );
