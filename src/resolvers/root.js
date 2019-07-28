@@ -1,14 +1,12 @@
 
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 const User = require('../models/user');
-const Stock = require('../models/stock');
-const Item = require('../models/item');
 const Location = require('../models/location');
 
 const locationUsers = async (userIds, req) => {
-        
   try {
     return (await User.find({ _id: { $in: userIds } })).map((user) => {
       return {
@@ -23,8 +21,7 @@ const locationUsers = async (userIds, req) => {
   }
 }
 
-const userLocations = async (locationIds, req) => {
-        
+const userLocations = async (locationIds, req) => {  
   try {
     return (await Location.find({ _id: { $in: locationIds } })).map((location) => {
       return {
@@ -40,10 +37,11 @@ const userLocations = async (locationIds, req) => {
 }
   
 const root = {
-
   user: async (args, req) => {
     try {
+      
       const user = await User.findById(req.userId);
+      
       return {
         ...user._doc,
         _id: user.id,
@@ -56,31 +54,20 @@ const root = {
   },
   
   createLocation: async (args, req) => {
-    
-    
     try {
-      
       const locationExists = await User.findOne({name: args.locationInput.name});
-      
       if(locationExists) {
         throw new Error('User already exists!');
       }
-      
       else {
-
-        console.log(req.userId);
         const user =  await User.findById(req.userId);
-        
         const location = new Location({
           name: args.locationInput.name
         });
-
         location.users.push(user);
         user.locations.push(location);
-
         const locationRes = await location.save();
         await user.save();
-
         return {
           ...locationRes._doc,
           _id: locationRes.id,
@@ -94,27 +81,19 @@ const root = {
   },
 
   createUser: async (args) => {
-    
-    try {
-            
+    try {    
       const userExists = await User.findOne({email: args.userInput.email});
-        
       if(userExists) {
         throw new Error('User already exists!');
       } 
-
       else {
-
         const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
-
         const user = new User({
           username: args.userInput.username,
           email: args.userInput.email,
           password: hashedPassword
         });
-
         const res = await user.save();
-
         return {...res._doc, _id: res.id, password: ''};
       }
     }
@@ -124,16 +103,12 @@ const root = {
   },
 
   login: async (args) => {
-  
     try {
-        
       const userToLogin = await User.findOne({email: args.loginInput.email});
-        
       if(!userToLogin) {
         throw new Error('User not found!');
       }
       else {
-          
         const authenticated = await bcrypt.compare(args.loginInput.password, userToLogin.password)
         if(!authenticated) {
           throw new Error('Password is incorrect!');
@@ -150,9 +125,41 @@ const root = {
     catch (err) {
       throw err;
     }
-  }
+  },
 
+  getProductInformation: async (args) => {
+    try {
+      let suggestedPrice = 0.00;
+      let titleSuggestions = [];
+      let brandSuggestions = [];
+      const { data } = await axios.get(`https://api.upcitemdb.com/prod/trial/lookup?upc=${args.upc}`);
+      if(data.code !== 'OK') {
+        throw new Error('Failed to find product information.');
+      }
+      else if (data.code === 'OK') {
+        data.items.forEach(item => {
+          if(!brandSuggestions.includes(item.brand)) {
+            brandSuggestions.push(item.brand);
+          }
+          if(item.offers) {
+            suggestedPrice = (item.offers.reduce((accumulator, offer) => {
+              if(!titleSuggestions.includes(offer.title)) {
+                titleSuggestions.push(offer.title);
+              }
+              return accumulator + offer.price;
+            }, 0) / item.offers.length);
+          }
+          else if(item.lowest_recorded_price && item.highest_recorded_price) {
+            suggestedPrice = (item.lowest_recorded_price  + item.highest_recorded_price) / 2;
+          }
+        })
+      }
+      return {titleSuggestions, brandSuggestions, suggestedPrice: suggestedPrice.toFixed(2)};
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
 };
-  
 
 module.exports = root;

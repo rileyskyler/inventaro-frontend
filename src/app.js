@@ -14,7 +14,7 @@ const Auth = require('./util/Auth');
 dotenv.config();
 
 const init = async () => {
-  
+
   const app = express();
 
   await mongoose.connect(
@@ -48,7 +48,8 @@ const main = async (app) => {
   app.get("/", (req, res) => {
     res.send("Hello World!");
   });
-
 };
+
+
 
 init();

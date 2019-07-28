@@ -6,8 +6,8 @@ type Stock {
 
 type Item {
     _id: ID
-    name: String
-    price: Int
+    title: String
+    price: Float!
 }
 
 type User {
@@ -22,7 +22,14 @@ type Location {
     _id: ID
     name: String
     users: [User!]!
+    salesTax: Int
     inventory: [Stock!]!
+}
+
+type ProductInformation {
+    titleSuggestions: [String!]
+    brandSuggestions: [String!]
+    suggestedPrice: Float!
 }
 
 type Authentication {
@@ -49,6 +56,7 @@ input LocationInput {
 type RootQuery {
     user: User!
     login(loginInput: LoginInput!) : Authentication!
+    getProductInformation(upc: String!): ProductInformation!
 }
 
 type RootMutation {
