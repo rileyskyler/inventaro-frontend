@@ -14,7 +14,7 @@ import { withRouter } from 'react-router-dom';
 
 
 
-class NavBar extends React.Component {
+class Navigation extends React.Component {
   constructor() {
     super() 
 
@@ -50,13 +50,11 @@ class NavBar extends React.Component {
         </AppBar>
         <Drawer open={this.state.isToggled} onClose={() => this.toggleSidebar()} >
           <List>
-            <ListItem button onClick={() => this.props.history.push(`/dashboard/items`)}>
-              {/* <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon> */}
-              <ListItemText primary="Items" />
+            <ListItem button onClick={() => this.props.history.push(`/add-inventory`)}>
+              <ListItemText primary="Add Inventory" />
             </ListItem>
-            <ListItem button>
-              {/* <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon> */}
-              <ListItemText primary="Users" />
+            <ListItem button onClick={() => this.props.history.push(`create-location`)}>
+              <ListItemText primary="Create Location" />
             </ListItem>
           </List>
         </Drawer>
@@ -65,4 +63,4 @@ class NavBar extends React.Component {
   }
 }
 
-export default withRouter(NavBar);
+export default withRouter(Navigation);

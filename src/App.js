@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from './NavBar';
+import Navigation from './Navigation';
 import Landing from './Landing';
 import Dashboard from './Dashboard';
 import Login from './Login';
@@ -27,21 +27,22 @@ class App extends React.Component {
     super()
     
     this.state = {
+      user: null,
       isAuth: false,
       token: ''
     }
     
     this.loginUser = this.loginUser.bind(this);
     this.registerUser = this.registerUser.bind(this);
+    this.addLocation = this.addLocation.bind(this);
+    this.joinLocation = this.joinLocation.bind(this)
   }
   
   async fetchApi(reqBody) {
-  
     let headers = {
       'Content-Type': 'application/json',
-      'Authorization': this.state.token
+      'Authorization': `Bearer ${this.state.token}`
     };
-    
     let res;
     try {  
       res = await fetch('http://localhost:1337/api', {
@@ -49,60 +50,124 @@ class App extends React.Component {
         body: JSON.stringify(reqBody),
         headers
       })
+      if(res.status === 200) {
+        return res.json();
+      }
     }
     catch (err) {
       throw err
     }
+  }
 
-    if(res.status === 200) {
-      return res.json();
+  async getUser() {
+    const reqBody = {
+      query: `
+        query{
+          user{ 
+            username,
+            email,
+            locations{
+              title,
+              salesTax,
+              inventory{
+                quantity,
+                item{ title, price }
+              }
+            }
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      const user = res.data.user;
+      this.setState({user});
+      return;
     }
-    
   }
 
   async loginUser({email, password}) {
-
     const reqBody = {
       query: `
-        query { login(loginInput: {email:"${email}", password: "${password}"}){token}}
+        query{
+          login(
+            loginInput:{ 
+              email:"${email}",
+              password: "${password}"
+            }
+          )
+          {token}
+        }
       `
     };
-
     const res = await this.fetchApi(reqBody);
-    
     if(res) {
-      const token = res.data.login.token;
-      this.setState({token})
+      await this.setState({token: res.data.login.token})
+      await this.getUser();
       this.props.history.push('/');
     }
-
   }
 
   async registerUser({username, email, password}) {
-
-
     const reqBody = {
       query: `
-        mutation {createUser(userInput: {username: "${username}", email: "${email}" password: "${password}"}) {_id, username, email, password}}
+        mutation {
+          createUser(
+            userInput: {
+              username: "${username}",
+              email: "${email}",
+              password: "${password}"
+            }
+          )
+          {
+            _id,
+            username,
+            email,
+            password
+          }
+        }
       `
     };
-
-
     const res = await this.fetchApi(reqBody);
-
     if(res) {
       this.loginUser({email, password});
     }
+  }
+
+  async addLocation({title}) {
+    const reqBody = {
+      query: `
+        mutation {
+          createLocation(locationInput: {title: "${title}"}) {
+            title
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      this.getUser();
+    }
+  }
+
+  async joinLocation() {
 
   }
   
   render() {
     
-    const primary = () => {
+    const landing = () => {
       return (
-        this.state.token
-        ? <Dashboard />
-        : <Landing/>
+        <Landing/>
+      )
+    }
+
+    const dashboard = () => {
+      return (
+        <Dashboard
+          user={this.state.user}
+          addLocation={this.addLocation}
+        />
       )
     }
 
@@ -122,30 +187,17 @@ class App extends React.Component {
       )
     }
 
-    const items = () => {
-      return (
-        <h1>Items</h1>
-      )
-    }
-
-    const locations = () => {
-      return (
-        <h1>Locations</h1>
-      )
-    }
-
     return (
       <div>
-        <Navbar 
+        <Navigation 
           classes={this.props.classes}
           isAuth={this.state.isAuth}
         />
         <Switch>
-          <Route path='/' component={primary} exact/>
-          <Route path='/login' component={login} exact/>
-          <Route path='/register' component={register} exact/>
-          <Route path='/items' component={items} exact/>
-          <Route path='/locations' component={locations} exact/>
+          <Route exact path='/' component={landing}/>
+          <Route exact path='/login' component={login}/>
+          <Route exact path='/register' component={register}/>
+          <Route exact path='/dashboard' component={dashboard}/>
         </Switch>
       </div>
     );

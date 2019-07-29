@@ -4,16 +4,21 @@ import { withRouter } from 'react-router-dom';
 
 
 const Login = props => {
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
+  const [loginInput, setLoginInput] = useState({
+    title: ''
+  });
+  
+  const handleLoginInput = option => event => {
+    setLoginInput({...loginInput, [option]: event.target.value});
+  }
+  
   return (
     <div>
       <h3>Login</h3>
       <form noValidate autoComplete="off">
         <TextField
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleLoginInput('email')}
           id="email"
           label="Email or username"
           type="email"
@@ -23,7 +28,7 @@ const Login = props => {
           variant="outlined"
         />
         <TextField
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handleLoginInput('password')}
           id="password"
           label="Password"
           type="password"
@@ -32,7 +37,7 @@ const Login = props => {
           margin="normal"
           variant="outlined"
         />
-        <Button onClick={() => props.loginUser({email, password})}>Login</Button>
+        <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
         <Button onClick={() => props.history.push('/')}>Cancel</Button>
       </form>
     </div>

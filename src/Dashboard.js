@@ -1,11 +1,20 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
+import Locations from './Locations';
 
-function Dashboard() {
+const Dashboard = props => {
   return (
-    <div>
-      Dashboard
-    </div>
+    (props.user.locations)
+    ?
+    <div>Home</div>
+    :
+    <Locations 
+      addLocation={props.addLocation}
+      // joinLocation={props.joinLocation}
+    />
+
   )
 }
 
-export default Dashboard;
+
+export default withRouter(Dashboard);
