@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -11,28 +11,53 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Drawer from '@material-ui/core/Drawer';
 import { withRouter } from 'react-router-dom';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
+
+
+// const simpleMenu = () => {
+
+// }
+ 
 
 
 class Navigation extends React.Component {
+
   constructor() {
-    super() 
+    super()
 
-    this.state = {
-      isToggled: false
-    };
-
-    this.toggleSidebar = this.toggleSidebar.bind(this);
-  }
-
-  toggleSidebar() {
-    this.setState(state => ({
-      isToggled: !state.isToggled
-    }))
+    this.state ={
+      isSidebarToggled: false,
+    }
   }
   
+  toggleSidebar() {
+    this.setState({isSidebarToggled: !this.state.isSidebarToggled})
+  }
+  
+  
+
   render() {
     
+    
+    const landingNav = () => {
+      return (  
+        <div className={this.props.classes.root}>
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6" className={this.props.classes.title}>
+                Inventaro
+              </Typography>
+                <Button onClick={() => this.props.history.push(`/login`)} color="inherit">Login</Button>
+                <Button onClick={() => this.props.history.push(`/register`)} color="inherit">Register</Button>
+            </Toolbar>
+          </AppBar>
+        </div>
+      )
+    }
+
+  const dashboardNav = () => {
     return (  
       <div className={this.props.classes.root}>
         <AppBar position="static">
@@ -41,14 +66,20 @@ class Navigation extends React.Component {
               <MenuIcon
               />
             </IconButton>
-            <Typography variant="h6" className={this.props.classes.title}>
+            <Typography onClick={() => this.props.history.push(`/`)} variant="h6" className={this.props.classes.title}>
               Inventaro
             </Typography>
-              <Button onClick={() => this.props.history.push(`/login`)} color="inherit">Login</Button>
-              <Button onClick={() => this.props.history.push(`/register`)} color="inherit">Register</Button>
+              <Button
+                onClick={() => this.props.history.push(`/dashboard`)} color="inherit">
+                Dashboard
+              </Button>
+              {/* {SimpleMenu} */}
           </Toolbar>
         </AppBar>
-        <Drawer open={this.state.isToggled} onClose={() => this.toggleSidebar()} >
+        <Drawer open={this.state.isSidebarToggled} onClose={() => this.toggleSidebar()} >
+          <Typography variant="h6" className={this.props.classes.title}>
+              Inventaro
+          </Typography>
           <List>
             <ListItem button onClick={() => this.props.history.push(`/add-inventory`)}>
               <ListItemText primary="Add Inventory" />
@@ -59,8 +90,21 @@ class Navigation extends React.Component {
           </List>
         </Drawer>
       </div>
-    );
+    )
   }
+
+  if(this.props.user) {
+    return dashboardNav()
+  }
+  else {
+    return landingNav()
+  }
+
+  
 }
+
+
+}
+
 
 export default withRouter(Navigation);

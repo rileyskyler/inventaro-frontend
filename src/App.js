@@ -4,21 +4,20 @@ import Landing from './Landing';
 import Dashboard from './Dashboard';
 import Login from './Login';
 import Register from './Register';
-import { withRouter } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 
 const styles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(3, 2),
-    flexGrow: 1,
+    flexGrow: 1
   },
   menuButton: {
     marginRight: theme.spacing(2),
   },
   title: {
-    flexGrow: 1,
-  },
+    flexGrow: 1
+  }
 }));
 
 class App extends React.Component {
@@ -102,9 +101,9 @@ class App extends React.Component {
     };
     const res = await this.fetchApi(reqBody);
     if(res) {
-      await this.setState({token: res.data.login.token})
+      await this.setState({token: res.data.login.token});
       await this.getUser();
-      this.props.history.push('/');
+      this.props.history.push('/dashboard');
     }
   }
 
@@ -190,14 +189,23 @@ class App extends React.Component {
     return (
       <div>
         <Navigation 
+          token={this.state.token}
+          user={this.state.user}
           classes={this.props.classes}
-          isAuth={this.state.isAuth}
         />
         <Switch>
-          <Route exact path='/' component={landing}/>
-          <Route exact path='/login' component={login}/>
-          <Route exact path='/register' component={register}/>
-          <Route exact path='/dashboard' component={dashboard}/>
+          <Route exact path='/' render={landing}/>
+          <Route exact path='/login' render={login}/>
+          <Route exact path='/register' render={register}/>
+          <Route path='/dashboard/:primary?/:secondary?' render={() => (
+            (this.state.token && this.state.user)
+            ? (
+                <Dashboard
+                  user={this.state.user}
+                />
+              )
+            : <Redirect to='/'/>
+          )}/>
         </Switch>
       </div>
     );
