@@ -1,5 +1,4 @@
-const { Schema } = require('mongoose');
-const { model } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const stockSchema = new Schema({
   quantity: {
@@ -12,4 +11,4 @@ const stockSchema = new Schema({
   }
 });
 
-module.exports = model("Stock", stockSchema);
+module.exports = model('Stock', stockSchema);

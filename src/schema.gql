@@ -6,7 +6,8 @@ type Stock {
 
 type Item {
     _id: ID
-    title: String
+    upc: String!
+    title: String!
     price: Float!
 }
 
@@ -20,10 +21,20 @@ type User {
 
 type Location {
     _id: ID
-    name: String
-    users: [User!]!
+    title: String!
     salesTax: Int
+    users: [User!]!
     inventory: [Stock!]!
+}
+
+input LocationInput {
+    title: String
+}
+
+input ItemInput {
+    upc: String!
+    title: String!
+    price: Float!
 }
 
 type ProductInformation {
@@ -47,10 +58,6 @@ input UserInput {
 input LoginInput {
     email: String!
     password: String!
-}
-
-input LocationInput {
-    name: String
 }
 
 type RootQuery {

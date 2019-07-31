@@ -1,10 +1,13 @@
-const { Schema } = require('mongoose');
-const { model } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const locationSchema = new Schema({
-  name: {
+  title: {
     type: String,
     required: true
+  },
+  salesTax: {
+    type: Number,
+    required: false
   },
   users: [
     {

@@ -5,6 +5,7 @@ const axios = require('axios');
 
 const User = require('../models/user');
 const Location = require('../models/location');
+const Item = require('../models/item')
 
 const locationUsers = async (userIds, req) => {
   try {
@@ -39,9 +40,7 @@ const userLocations = async (locationIds, req) => {
 const root = {
   user: async (args, req) => {
     try {
-      
       const user = await User.findById(req.userId);
-      
       return {
         ...user._doc,
         _id: user.id,
@@ -52,26 +51,35 @@ const root = {
       throw err;
     }
   },
-  
+  createStock: async ( args, req) => {
+    try {
+      const item = await Item({
+        
+      });
+    }
+    catch(err) {
+      throw err;
+    }
+  },
   createLocation: async (args, req) => {
     try {
-      const locationExists = await User.findOne({name: args.locationInput.name});
+      const locationExists = await User.findOne({title: args.locationInput.title});
       if(locationExists) {
-        throw new Error('User already exists!');
+        throw new Error("Location already exists!");
       }
       else {
         const user =  await User.findById(req.userId);
         const location = new Location({
-          name: args.locationInput.name
+          title: args.locationInput.title
         });
         location.users.push(user);
         user.locations.push(location);
-        const locationRes = await location.save();
+        const res = await location.save();
         await user.save();
         return {
-          ...locationRes._doc,
-          _id: locationRes.id,
-          users: locationUsers.bind(this, locationRes.users)
+          ...res._doc,
+          _id: res.id,
+          users: locationUsers.bind(this, res.users)
         }
       }
     }
@@ -79,12 +87,11 @@ const root = {
       throw err
     }
   },
-
   createUser: async (args) => {
     try {    
       const userExists = await User.findOne({email: args.userInput.email});
       if(userExists) {
-        throw new Error('User already exists!');
+        throw new Error("User already exists!");
       } 
       else {
         const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
@@ -101,7 +108,6 @@ const root = {
       throw err;
     }
   },
-
   login: async (args) => {
     try {
       const userToLogin = await User.findOne({email: args.loginInput.email});
@@ -118,7 +124,7 @@ const root = {
             process.env.AUTH_KEY, {
             expiresIn: '5h'
           })
-          return { userId: userToLogin.id, token, tokenExpiration: 1};
+          return { userId: userToLogin.id, token, tokenExpiration: 5};
         }
       }
     }
@@ -126,7 +132,6 @@ const root = {
       throw err;
     }
   },
-
   getProductInformation: async (args) => {
     try {
       let suggestedPrice = 0.00;

@@ -36,11 +36,9 @@ const main = async (app) => {
   app.use(Auth);
 
   app.use("/api", graphqlHTTP({
-
     schema: buildSchema(
-      fs.readFileSync('./src/schema.graphql', 'utf8')
+      fs.readFileSync('./src/schema.gql', 'utf8')
     ),
-
     rootValue: RootResolver,
     graphiql: true,
   }));
