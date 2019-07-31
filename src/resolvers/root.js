@@ -51,14 +51,54 @@ const root = {
       throw err;
     }
   },
-  createStock: async ( args, req) => {
+  createItem: async (args) => {
+    const itemExists = await Item.findOne({upc: args.itemInput.upc});
+    if(itemExists) {
+      throw new Error("Item already exists!")
+    }
     try {
       const item = await Item({
-        
+        upc: args.itemInput.upc,
+        title: args.itemInput.title,
+        price: args.itemInput.price
       });
+      const res = await item.save();
+      return {
+        ...res._doc,
+        _id: res.id
+      }
     }
     catch(err) {
       throw err;
+    }
+  },
+  createStock: async (args, req) => {
+    try {
+      const location = await Location.findById(args.stockInput.locationId);
+      if(!location) {
+        throw new Error("Location does not exist!");
+      }
+      else {
+        const user = await User.findById('5d3df0df9dd7470bdeaa96da');
+        if(!user.locations.includes(args.stockInput.locationId)){
+          throw new Error("User does not have permission to edit this location!");
+        }
+        else {
+          const item = await Item.findOne({upc: args.stockInput.upc});
+          
+          if(!item) {
+            throw new Error("Item with that UPC does not exist");
+          }
+          else {
+            
+          }
+        }
+      }
+      
+
+    }
+    catch (err) {
+
     }
   },
   createLocation: async (args, req) => {
@@ -68,7 +108,7 @@ const root = {
         throw new Error("Location already exists!");
       }
       else {
-        const user =  await User.findById(req.userId);
+        const user = await User.findById(req.userId);
         const location = new Location({
           title: args.locationInput.title
         });
