@@ -59,13 +59,22 @@ input LoginInput {
     password: String!
 }
 
-input StockInput {
+input CreateStockInput {
     locationId: String!
     upc: String!
+    price: String!
+    quantity: Int!
+}
+
+input UpdateStockInput {
+    locationId: String!
+    upc: String!
+    price: String
+    quantity: Int
 }
 
 type RootQuery {
-    user: User!
+    user(locationId: String): User!
     login(loginInput: LoginInput!) : Authentication!
     getProductInformation(upc: String!) : ProductInformation!
 }
@@ -74,7 +83,8 @@ type RootMutation {
     createUser(userInput: UserInput!) : User!
     createLocation(locationInput: LocationInput!) : Location!
     createItem(itemInput: ItemInput!) : Item!
-    createStock(stockInput: StockInput!): Stock!
+    createStock(createStockInput: CreateStockInput!): Stock!
+    updateStock(updateStockInput: UpdateStockInput) : Stock!
 }
 
 schema {

@@ -5,6 +5,10 @@ const stockSchema = new Schema({
     type: Number,
     required: true
   },
+  price: {
+    type: String,
+    required: true
+  },
   item: {
     type: Schema.Types.ObjectId,
     ref: 'Item'

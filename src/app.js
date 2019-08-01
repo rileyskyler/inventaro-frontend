@@ -31,7 +31,7 @@ const init = async () => {
 
 const main = async (app) => {
   
-  app.use(cors())
+  app.use(cors());
   
   app.use(Auth);
 
