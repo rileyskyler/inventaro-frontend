@@ -2,8 +2,11 @@ import React from 'react';
 import Navigation from './Navigation';
 import Landing from './Landing';
 import Dashboard from './Dashboard';
+import AddInventory from './AddInventory';
+import AddLocation from './AddLocation';
 import Login from './Login';
 import Register from './Register';
+import Checkout from './Checkout';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 
@@ -28,13 +31,51 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: ''
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ2ODY0NzcsImV4cCI6MTU2NDcwNDQ3N30.l8FhCjXVoB2wveQTipMjtwxdPqnkP7bU8qfXzGMXvQY',
+      currentLocation: null
     }
     
     this.loginUser = this.loginUser.bind(this);
     this.registerUser = this.registerUser.bind(this);
     this.addLocation = this.addLocation.bind(this);
-    this.joinLocation = this.joinLocation.bind(this)
+    this.chooseLocation = this.chooseLocation.bind(this);
+  }
+
+  componentDidMount() {
+    if(this.state.token) {
+      this.getUser()
+      //for development
+      this.props.history.push('/add-inventory');
+    }
+  }
+
+  async chooseLocation(location) {
+    console.log(location);
+    const reqBody = {
+      query: `
+        query {
+          location(id: "5d3e27801d7a1d1115fed2d3") {
+            _id
+            title
+            inventory {
+                _id
+                quantity
+                price
+                item {
+                    title
+                    upc
+                }
+            }
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      const location = res.data.location;
+      this.setState({currentLocation: location});
+      console.log(this.state.currentLocation);
+    }
   }
   
   async fetchApi(reqBody) {
@@ -61,20 +102,7 @@ class App extends React.Component {
   async getUser() {
     const reqBody = {
       query: `
-        query{
-          user{ 
-            username,
-            email,
-            locations{
-              title,
-              salesTax,
-              inventory{
-                quantity,
-                item{ title, price }
-              }
-            }
-          }
-        }
+        query{ user{ username email locations{ _id title } } }
       `
     };
     const res = await this.fetchApi(reqBody);
@@ -101,7 +129,9 @@ class App extends React.Component {
     };
     const res = await this.fetchApi(reqBody);
     if(res) {
-      await this.setState({token: res.data.login.token});
+      const token = res.data.login.token;
+      console.log(token);
+      await this.setState({token});
       await this.getUser();
       this.props.history.push('/dashboard');
     }
@@ -148,10 +178,6 @@ class App extends React.Component {
       this.getUser();
     }
   }
-
-  async joinLocation() {
-
-  }
   
   render() {
     
@@ -160,16 +186,7 @@ class App extends React.Component {
         <Landing/>
       )
     }
-
-    const dashboard = () => {
-      return (
-        <Dashboard
-          user={this.state.user}
-          addLocation={this.addLocation}
-        />
-      )
-    }
-
+    
     const login = () => {
       return (
         <Login
@@ -186,26 +203,65 @@ class App extends React.Component {
       )
     }
 
+    const checkout = () => {
+      return checkAuth(
+        <Checkout
+          user={this.state.user}
+          addLocation={this.addLocation}
+        />
+      )
+    }
+
+    const dashboard = () => {
+      return checkAuth(
+        <Dashboard
+          user={this.state.user}
+          addLocation={this.addLocation}
+        />
+      )
+    }
+
+    const addInventory = () => {
+      return checkAuth(
+        <AddInventory 
+          user={this.state.user}
+          currentLocation={this.state.currentLocation}
+        />
+      )
+    }
+
+    const addLocation = () => {
+      return checkAuth(
+        <AddLocation 
+          user={this.state.user}
+          currentLocation={this.state.currentLocation}
+        />
+      )
+    }
+
+    const checkAuth = (componentToRender) => (
+      (this.state.token && this.state.user)
+      ? componentToRender
+      : <Redirect to='/'/>
+    )
+
     return (
       <div>
         <Navigation 
           token={this.state.token}
           user={this.state.user}
           classes={this.props.classes}
+          currentLocation={this.state.currentLocation}
+          chooseLocation={this.chooseLocation}
         />
         <Switch>
           <Route exact path='/' render={landing}/>
           <Route exact path='/login' render={login}/>
           <Route exact path='/register' render={register}/>
-          <Route path='/dashboard/:primary?/:secondary?' render={() => (
-            (this.state.token && this.state.user)
-            ? (
-                <Dashboard
-                  user={this.state.user}
-                />
-              )
-            : <Redirect to='/'/>
-          )}/>
+          <Route path='/dashboard' render={dashboard} />
+          <Route path='/add-inventory' render={addInventory}/>
+          <Route path='/add-location' render={addLocation}/>
+          <Route path='/checkout' render={checkout}/>
         </Switch>
       </div>
     );

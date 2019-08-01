@@ -14,31 +14,69 @@ import { withRouter } from 'react-router-dom';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
-
-
-// const simpleMenu = () => {
-
-// }
- 
-
-
 class Navigation extends React.Component {
 
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.state ={
       isSidebarToggled: false,
+      isLocationMenuToggled: false,
     }
+
+    this.toggleSidebar = this.toggleSidebar.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
   
   toggleSidebar() {
-    this.setState({isSidebarToggled: !this.state.isSidebarToggled})
+    this.setState({isSidebarToggled: !this.state.isSidebarToggled});
+  }
+
+  handleClose(location) {
+    this.setState({isLocationMenuToggled: false})
+    this.props.chooseLocation(location);
   }
   
-  
+  handleClick(event) {
+    this.setState({isLocationMenuToggled: true})
+  }
 
   render() {
+
+    const locationMenu = () => {
+      return (
+        <div>
+          <Button aria-controls="simple-menu" aria-haspopup="true" onClick={this.handleClick}>
+            {
+              (this.props.currentLocation)
+                ? `${this.props.currentLocation.title}`
+                :'Choose Location'
+            }
+          </Button>
+          <Menu
+            id="simple-menu"
+            keepMounted
+            open={this.state.isLocationMenuToggled}
+            onClose={this.handleClose}
+          >
+            {
+              this.props.user.locations.map((location) => {
+                const { title } = location;
+                return (
+                  <MenuItem
+                    key={title}
+                    onClick={(e) => this.handleClose(location)}
+                  >
+                    {title}
+                  </MenuItem>
+                )
+              })
+            }
+          </Menu>
+        </div>
+      )
+    }
     
     
     const landingNav = () => {
@@ -73,7 +111,7 @@ class Navigation extends React.Component {
                 onClick={() => this.props.history.push(`/dashboard`)} color="inherit">
                 Dashboard
               </Button>
-              {/* {SimpleMenu} */}
+              {locationMenu()}
           </Toolbar>
         </AppBar>
         <Drawer open={this.state.isSidebarToggled} onClose={() => this.toggleSidebar()} >
@@ -84,8 +122,8 @@ class Navigation extends React.Component {
             <ListItem button onClick={() => this.props.history.push(`/add-inventory`)}>
               <ListItemText primary="Add Inventory" />
             </ListItem>
-            <ListItem button onClick={() => this.props.history.push(`create-location`)}>
-              <ListItemText primary="Create Location" />
+            <ListItem button onClick={() => this.props.history.push(`/add-location`)}>
+              <ListItemText primary="Add Location" />
             </ListItem>
           </List>
         </Drawer>

@@ -1,15 +1,16 @@
 import React from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import AddLocation from './AddLocation';
+import AddInventory from './AddInventory';
 
-const main = ({user, match}) => {
+const main = ({user}) => {
   if(!user.locations) {
     return (
       <div>
-        <Link to={`${match.url}/location/add`}>
+        <Link to={`/add-location`}>
           Add Location
         </Link>
-        <Link to={`${match.url}/location/join`}>
+        <Link to={`/join-location`}>
           Join Location
         </Link>
       </div>
@@ -17,7 +18,7 @@ const main = ({user, match}) => {
   }
   else {
     return (
-      <Link to={`${match.url}/checkout`}>
+      <Link to={`/checkout`}>
         Checkout
       </Link>
     )
@@ -25,29 +26,7 @@ const main = ({user, match}) => {
 }
 
 const Dashboard = props => {
-  const { primary, secondary} = props.match.params;
-  switch (primary) {
-    case 'location':
-      switch (secondary) {
-        case 'add':
-          return (
-            <AddLocation
-              addLocation={props.addLocation}
-            />
-          )
-        case 'join':
-          return <div>Join Location</div>
-        default:
-          return <div>Locations</div>
-      }
-    case 'checkout':
-      switch(secondary) {
-        case undefined:
-          return <div>Welcome to checkout</div>
-      }
-    default:
-      return main(props);
-  }
+  return main(props)
 }
 
 export default withRouter(Dashboard);
