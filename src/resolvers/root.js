@@ -61,12 +61,30 @@ const root = {
       return {
         ...user._doc,
         _id: user.id,
-        locations: userLocations.bind(
-          this,
-          (args.locationId) 
-            ? args.locationId 
-            : user._doc.locations
-        )
+        locations: userLocations.bind(this, user._doc.locations)
+      }
+    }
+    catch (err) {
+      throw err;
+    }
+  },
+  location: async (args, req) => {
+    try {
+      const location = await Location.findById(args.id);
+      if(!location) {
+        throw new Error("Location with that id does not exist!");
+      }
+      else {
+        if(!location.users.includes(req.userId)) {
+          throw new Error("User does not have permission to access this location!")
+        }
+        else {
+          return {
+            ...location._doc,
+            _id: location.id,
+            inventory: locationInventory.bind(this, location._doc.inventory)
+          }
+        }
       }
     }
     catch (err) {
@@ -230,9 +248,9 @@ const root = {
         else {
           const token = jwt.sign({userId: userToLogin.id, email: userToLogin.email},
             process.env.AUTH_KEY, {
-            expiresIn: '5h'
+            expiresIn: '72h'
           })
-          return { userId: userToLogin.id, token, tokenExpiration: 5};
+          return { userId: userToLogin.id, token, tokenExpiration: 72};
         }
       }
     }
@@ -240,7 +258,7 @@ const root = {
       throw err;
     }
   },
-  getProductInformation: async (args) => {
+  productInformation: async (args) => {
     try {
       let suggestedPrice = 0.00;
       let titleSuggestions = [];

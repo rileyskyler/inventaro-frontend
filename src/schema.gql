@@ -74,9 +74,11 @@ input UpdateStockInput {
 }
 
 type RootQuery {
-    user(locationId: String): User!
+    user: User!
+    location(id: String!): Location!
+    # stock(locationId: String!, upc: String!)
     login(loginInput: LoginInput!) : Authentication!
-    getProductInformation(upc: String!) : ProductInformation!
+    productInformation(upc: String!) : ProductInformation!
 }
 
 type RootMutation {
