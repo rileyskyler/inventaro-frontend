@@ -12,6 +12,10 @@ const stockSchema = new Schema({
   item: {
     type: Schema.Types.ObjectId,
     ref: 'Item'
+  },
+  location: {
+    type: Schema.Types.ObjectId,
+    ref: 'Location'
   }
 });
 

@@ -3,12 +3,14 @@ type Stock {
     quantity: Int!
     price: String!
     item: Item!
+    location: Location!
 }
 
 type Item {
     _id: ID
     upc: String!
     title: String!
+    brand: String!
 }
 
 type User {
@@ -34,12 +36,13 @@ input LocationInput {
 input ItemInput {
     upc: String!
     title: String!
+    brand: String!
 }
 
-type ProductInformation {
+type ProductSuggestions {
     titleSuggestions: [String!]
     brandSuggestions: [String!]
-    suggestedPrice: Float!
+    priceSuggestion: Float!
 }
 
 type Authentication {
@@ -59,7 +62,7 @@ input LoginInput {
     password: String!
 }
 
-input CreateStockInput {
+input StockInput {
     locationId: String!
     upc: String!
     price: String!
@@ -67,7 +70,7 @@ input CreateStockInput {
 }
 
 input UpdateStockInput {
-    locationId: String!
+    stockId: String!
     upc: String!
     price: String
     quantity: Int
@@ -76,16 +79,16 @@ input UpdateStockInput {
 type RootQuery {
     user: User!
     location(id: String!): Location!
-    # stock(locationId: String!, upc: String!)
+    item(upc: String!): Item!
     login(loginInput: LoginInput!) : Authentication!
-    productInformation(upc: String!) : ProductInformation!
+    productSuggestions(upc: String!) : ProductSuggestions!
 }
 
 type RootMutation {
     createUser(userInput: UserInput!) : User!
     createLocation(locationInput: LocationInput!) : Location!
     createItem(itemInput: ItemInput!) : Item!
-    createStock(createStockInput: CreateStockInput!): Stock!
+    createStock(stockInput: StockInput!): Stock!
     updateStock(updateStockInput: UpdateStockInput) : Stock!
 }
 

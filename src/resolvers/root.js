@@ -91,21 +91,41 @@ const root = {
       throw err;
     }
   },
-  createItem: async (args) => {
-    const itemExists = await Item.findOne({upc: args.itemInput.upc});
-    if(itemExists) {
-      throw new Error("Item already exists!")
-    }
+  item: async (args, req) => {
     try {
-      const item = await Item({
-        upc: args.itemInput.upc,
-        title: args.itemInput.title,
-        price: args.itemInput.price
-      });
-      const res = await item.save();
-      return {
-        ...res._doc,
-        _id: res.id
+      const item = await Item.findOne({upc: args.upc});
+      if(!item) {
+        throw new Error("Item does not exist!")
+      }
+      else {
+        return {
+          ...item._doc,
+          id: item.id
+        }
+      }
+    }
+    catch (err) {
+      throw err;
+    }
+  },
+  createItem: async (args) => {
+    try {
+      const itemExists = await Item.findOne({upc: args.itemInput.upc});
+      if(itemExists) {
+        console.log('itemExists')
+        throw new Error("Item already exists!")
+      }
+      else {
+        const item = Item({
+          brand: args.itemInput.brand,
+          upc: args.itemInput.upc,
+          title: args.itemInput.title,
+        });
+        const res = await item.save();
+        return {
+          ...res._doc,
+          _id: res.id
+        }
       }
     }
     catch(err) {
@@ -113,34 +133,39 @@ const root = {
     }
   },
   createStock: async (args, req) => {
-    console.log(args)
     try {
-      const location = await Location.findById(args.createStockInput.locationId);
+      const location = await Location.findById(args.stockInput.locationId);
       if(!location) {
         throw new Error("Location does not exist!");
       }
       else {
-        const user = await User.findById('5d3df0df9dd7470bdeaa96da');
+        const user = await User.findById(req.userId);
         if(!user.locations.includes(location.id)) {
           throw new Error("User does not have permission to edit this location!");
         }
         else {
-          const item = await Item.findOne({upc: args.createStockInput.upc});
+          const item = await Item.findOne({upc: args.stockInput.upc});
           if(!item) {
             throw new Error("Item with that UPC does not exist");
           }
           else {
             const stock = new Stock({
-              price: args.createStockInput.price,
-              quantity: args.createStockInput.quantity,
-              item
+              price: args.stockInput.price,
+              quantity: args.stockInput.quantity,
+              item,
+              location
             });
             const res = await stock.save();
+
             location.inventory.push(stock);
             await location.save();
             return {
               ...res._doc,
               _id: res.id,
+              location: {
+                ...item._doc,
+                _id: item.id
+              },
               item: {
                 ...item._doc,
                 _id: item.id
@@ -156,29 +181,30 @@ const root = {
   },
   updateStock: async (args, req) => {
     try {
-      const location = await Location.findById(args.UpdateStockInput.locationId);
-      if(!location) {
-        throw new Error("Location does not exist!");
+      const stock = await Stock.findById(args.updateStockInput.stockId);
+      console.log(stock)
+      if(!stock) {
+        throw new Error("Stock does not exist!");
       }
       else {
-        const user = await User.findById('5d3df0df9dd7470bdeaa96da');
-        if(!user.locations.includes(location.doc._id)) {
-          throw new Error("User does not have permission to edit this location!");
+        const location = await Location.findById(stock.location);
+
+        if(!location.users.includes(req.userId)) {
+          throw new Error("User does not have permission to edit this stock!");
         }
         else {
-          const item = await Item.findOne({upc: args.UpdateStockInput.upc});
-          if(!item) {
-            throw new Error("Item with that UPC does not exist!");
-          }
-          else {
-            const stock = new Stock({
-              price: args.UpdateStockInput.price,
-              quantity: args.UpdateStockInput.quantity,
-              item
-            });
-            const res = await stock.save();
-            location.inventory.push(stock);
-            await location.save();
+          const item = await Item.findById(stock.item);
+          console.log('item')
+          stock.price = args.updateStockInput.price;
+          stock.quantity = args.updateStockInput.quantity;
+          
+          // console.log(stock)
+          const res = await stock.save()
+          console.log('res',res)
+          return {
+            price: stock.price,
+            quantity: stock.quantity,
+            item
           }
         }
       }
@@ -258,9 +284,9 @@ const root = {
       throw err;
     }
   },
-  productInformation: async (args) => {
+  productSuggestions: async (args) => {
     try {
-      let suggestedPrice = 0.00;
+      let priceSuggestion = 0.00;
       let titleSuggestions = [];
       let brandSuggestions = [];
       const { data } = await axios.get(`https://api.upcitemdb.com/prod/trial/lookup?upc=${args.upc}`);
@@ -273,7 +299,7 @@ const root = {
             brandSuggestions.push(item.brand);
           }
           if(item.offers) {
-            suggestedPrice = (item.offers.reduce((accumulator, offer) => {
+            priceSuggestion = (item.offers.reduce((accumulator, offer) => {
               if(!titleSuggestions.includes(offer.title)) {
                 titleSuggestions.push(offer.title);
               }
@@ -281,14 +307,18 @@ const root = {
             }, 0) / item.offers.length);
           }
           else if(item.lowest_recorded_price && item.highest_recorded_price) {
-            suggestedPrice = (item.lowest_recorded_price  + item.highest_recorded_price) / 2;
+            priceSuggestion = (item.lowest_recorded_price  + item.highest_recorded_price) / 2;
           }
         })
       }
-      return {titleSuggestions, brandSuggestions, suggestedPrice: suggestedPrice.toFixed(2)};
+      return {
+        titleSuggestions,
+        brandSuggestions,
+        priceSuggestion: priceSuggestion.toFixed(2) + ''
+      };
     }
     catch (err) {
-      console.log(err);
+      throw err;
     }
   }
 };

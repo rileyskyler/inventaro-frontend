@@ -42,10 +42,6 @@ const main = async (app) => {
     rootValue: RootResolver,
     graphiql: true,
   }));
-
-  app.get("/", (req, res) => {
-    res.send("Hello World!");
-  });
 };
 
 
