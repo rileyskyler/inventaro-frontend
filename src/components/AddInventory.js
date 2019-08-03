@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, ButtonGroup } from '@material-ui/core';
+import { withRouter } from 'react-router-dom';
 
 const AddInventory = props => {
-
   const [mode, setMode] = useState('DEFAULT');
 
   const [inventoryInput, setInventoryInput] = useState({
-    upc:'096619846016',
+    upc:'09661984601',
     price: '0.00',
     quantity: '0',
     title: '',
@@ -16,26 +16,27 @@ const AddInventory = props => {
   const [productSuggestions, setProductSuggestions] = useState({
     title: [],
     brand: [],
-    price: ''
+    price: []
   })
 
   const handleInput = property => event => {
+
     setInventoryInput({
       ...inventoryInput, [property]: event.target.value
     })
   }
 
-  const handleUpcInput = async (event) => {
-    setMode('DEFAULT')
+  const handleUpcInput = (event) => {
+    setMode('DEFAULT');
     const upc = event.target.value;
-    setInventoryInput({
-      ...inventoryInput, upc: event.target.value
-    })
-    findProduct(upc);
+    setInventoryInput({...inventoryInput, upc});
   }
 
-  const findProduct = async (upc) => {
-    const stock = props.currentLocation.inventory.find(stock => stock.item.upc === upc);
+  const findProduct = async () => {
+    if(inventoryInput.upc.length !== 12) {
+      return;
+    }
+    const stock = props.currentLocation.inventory.find(stock => stock.item.upc === inventoryInput.upc);
     if(stock) {
       setInventoryInput({
         ...inventoryInput,
@@ -108,7 +109,6 @@ const AddInventory = props => {
       `
     };
     const res = await props.fetchApi(reqBody);
-    console.log(res)
     if(res) {
       return res.data.createItem;
     }
@@ -154,15 +154,18 @@ const AddInventory = props => {
               quantity: ${inventoryInput.quantity},
               price: "${inventoryInput.price}"
             }
-          ) 
+          )
           {
+            item {
+              upc
+              brand
+            } 
             price
             quantity
           }
         }
       `
     };
-    console.log('dd')
     const res = await props.fetchApi(reqBody);
     if(res) {
       return res.data.updateStock;
@@ -174,20 +177,29 @@ const AddInventory = props => {
     let item;
     if(mode === 'CREATE_ITEM') {
       item = await createItem();
-      console.log(item)
       if(!item) {
+        throw new Error('Item not created!')
       }
     }
+    let inventory = props.currentLocation.inventory;
     if((mode === 'CREATE_ITEM' && item) || mode === 'CREATE_STOCK') {
-      const stock = await createStock();
-      if(stock) {
-        console.log(stock)
+      const createdStock = await createStock();
+      if(createdStock) {
+        inventory.push(createdStock);
+        props.updateInventory(inventory);
+        props.history.push('/dashboard');
       }
     }
     if(mode === 'UPDATE_STOCK') {
-      console.log()
       const updatedStock = await updateStock();
-      console.log(updatedStock)
+      if(updatedStock) {
+        const stockIndex = inventory.findIndex((stock) => {
+          return stock.item.upc === updatedStock.item.upc;
+        })
+        inventory[stockIndex] = updatedStock;
+        props.updateInventory(inventory);
+      }
+      props.history.push('/dashboard');
     }
   }
 
@@ -249,6 +261,7 @@ const AddInventory = props => {
           variant="outlined"
           value={inventoryInput.upc}
         />
+        <Button onClick={() => findProduct(inventoryInput.upc)}>Find</Button>
       </>
     )
   }
@@ -374,4 +387,4 @@ const AddInventory = props => {
   } 
 }
 
-export default AddInventory;
+export default withRouter(AddInventory);

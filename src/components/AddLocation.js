@@ -10,6 +10,22 @@ const AddLocation = props => {
     setLocationInput({...locationInput, [option]: event.target.value});
   }
 
+  const addLocation = async ({title}) => {
+    const reqBody = {
+      query: `
+        mutation {
+          createLocation(locationInput: {title: "${title}"}) {
+            title
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      props.getUser();
+    }
+  }
+
   return (
     <div>
       <h3>Add Location</h3>

@@ -1,12 +1,12 @@
 import React from 'react';
-import Navigation from './components/Navigation';
-import Landing from './components/Landing';
-import Dashboard from './components/Dashboard';
-import AddInventory from './components/AddInventory';
-import AddLocation from './components/AddLocation';
-import Login from './components/Login';
-import Register from './components/Register';
-import Checkout from './components/Checkout';
+import Navigation from './Navigation';
+import Landing from './Landing';
+import Dashboard from './Dashboard';
+import AddInventory from './AddInventory';
+import AddLocation from './AddLocation';
+import Login from './Login';
+import Register from './Register';
+import Checkout from './Checkout';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 

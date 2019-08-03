@@ -8,13 +8,7 @@ const AddInventory = props => {
 
   const handleUpcInput = option => event => {
     const upc = event.target.value;
-    if(upc.length <= 12) {
       setCheckoutInput({...checkoutInput, upc})
-      if(upc.length === 12) {
-        console.log('12')
-        
-      } 
-    }
   }
 
   return (
@@ -39,3 +33,5 @@ const AddInventory = props => {
 }
 
 export default AddInventory;
+
+

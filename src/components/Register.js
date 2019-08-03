@@ -14,6 +14,32 @@ const Register = props => {
     setRegisterInput({...registerInput, [option]: event.target.value});
   }
 
+  const registerUser = async ({username, email, password})  => {
+    const reqBody = {
+      query: `
+        mutation {
+          createUser(
+            userInput: {
+              username: "${username}",
+              email: "${email}",
+              password: "${password}"
+            }
+          )
+          {
+            _id,
+            username,
+            email,
+            password
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      props.loginUser({email, password});
+    }
+  }
+
   return (
     <div>
       <Paper>
@@ -48,7 +74,7 @@ const Register = props => {
             margin="normal"
             variant="outlined"
           />
-          <Button onClick={() => props.registerUser(registerInput)}>Register</Button>
+          <Button onClick={() => registerUser(registerInput)}>Register</Button>
           <Button onClick={() => props.history.push("/")}>Cancel</Button>
         </form>
       </Paper>
