@@ -31,7 +31,7 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ2ODY0NzcsImV4cCI6MTU2NDcwNDQ3N30.l8FhCjXVoB2wveQTipMjtwxdPqnkP7bU8qfXzGMXvQY',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ3NjA0MDksImV4cCI6MTU2NTAxOTYwOX0.4_7xJizQCdSumuHV7TvnhEcHFut-OeMq-UF3ji0Nk-w',
       currentLocation: null
     }
     
@@ -39,12 +39,14 @@ class App extends React.Component {
     this.registerUser = this.registerUser.bind(this);
     this.addLocation = this.addLocation.bind(this);
     this.chooseLocation = this.chooseLocation.bind(this);
+    this.fetchApi = this.fetchApi.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if(this.state.token) {
-      this.getUser()
+      await this.getUser()
       //for development
+      this.chooseLocation(this.state.user.locations[0])
       this.props.history.push('/add-inventory');
     }
   }
@@ -54,17 +56,17 @@ class App extends React.Component {
     const reqBody = {
       query: `
         query {
-          location(id: "5d3e27801d7a1d1115fed2d3") {
+          location(id: "${location._id}") {
             _id
             title
             inventory {
-                _id
-                quantity
-                price
-                item {
-                    title
-                    upc
-                }
+              _id
+              quantity
+              price
+              item {
+                title
+                upc
+              }
             }
           }
         }
@@ -74,7 +76,6 @@ class App extends React.Component {
     if(res) {
       const location = res.data.location;
       this.setState({currentLocation: location});
-      console.log(this.state.currentLocation);
     }
   }
   
@@ -217,6 +218,7 @@ class App extends React.Component {
         <Dashboard
           user={this.state.user}
           addLocation={this.addLocation}
+          token={this.state.token}
         />
       )
     }
@@ -226,6 +228,7 @@ class App extends React.Component {
         <AddInventory 
           user={this.state.user}
           currentLocation={this.state.currentLocation}
+          fetchApi={this.fetchApi}
         />
       )
     }
