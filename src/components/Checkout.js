@@ -98,12 +98,11 @@ const Checkout = props => {
   }
 
   const addToCheckout = (stock) => {
-    console.log(stock)
     let cart = props.cart;
     const productIndex = cart.findIndex(product => stock.item.upc === product.upc);
     if(productIndex > -1) {
-      props.cart[productIndex].quantity++
-      props.updateCart([...cart]);
+      cart[productIndex].quantity++
+      props.updateCart(cart);
     } else {
       props.updateCart(
         [
@@ -130,7 +129,10 @@ const Checkout = props => {
   const handleAddInventory = () => {
     props.history.push({
       pathname: '/add-inventory',
-      params: {upc: upcInput}
+      params: {
+        upc: upcInput,
+        redirect: 'CHECKOUT'
+      }
     })
   }
 
@@ -139,11 +141,11 @@ const Checkout = props => {
     switch(operand){
       case '+':
         cart[productIndex].quantity++;
-        props.updateCart([...cart]);
+        props.updateCart(cart);
         break;
       case '-':
         cart[productIndex].quantity--;
-        props.updateCart([...cart]);
+        props.updateCart(cart);
         break;
     }
   }

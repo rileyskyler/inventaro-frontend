@@ -211,6 +211,8 @@ class App extends React.Component {
             currentLocation={this.state.currentLocation}
             updateInventory={this.updateInventory}
             fetchApi={this.fetchApi}
+            cart={this.state.cart}
+            updateCart={this.updateCart}
           />
         )
       )

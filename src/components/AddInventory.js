@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom';
 const AddInventory = props => {
 
   const [mode, setMode] = useState('DEFAULT');
+  const [redirect, setRedirect] = useState('DEFAULT');
 
   const [inventoryInput, setInventoryInput] = useState({
     upc:'',
@@ -21,10 +22,15 @@ const AddInventory = props => {
   })
 
   useEffect(() => {
+
     if(props.location.params) {
+      const { upc, redirect } = props.location.params;
       setInventoryInput({
-        ...inventoryInput, upc: props.location.params.upc
+        ...inventoryInput, upc
       })
+      if(redirect) {
+        setRedirect(redirect);
+      }
       findProduct()
     }
   }, []);
@@ -121,6 +127,7 @@ const AddInventory = props => {
       `
     };
     const res = await props.fetchApi(reqBody);
+    console.log(res)
     if(res) {
       return res.data.createItem;
     }
@@ -198,10 +205,9 @@ const AddInventory = props => {
     if((mode === 'CREATE_ITEM' && item) || mode === 'CREATE_STOCK') {
       const createdStock = await createStock();
       if(createdStock) {
-        console.log(createdStock)
-        inventory.push(createdStock);
+        const stockIndex = inventory.push(createdStock) - 1;
         props.updateInventory(inventory);
-        props.history.goBack();
+        handleRedirect(stockIndex);
       }
     }
     if(mode === 'UPDATE_STOCK') {
@@ -210,9 +216,29 @@ const AddInventory = props => {
       if(updatedStock) {
         stockIndex = inventory.findIndex(stock => stock.item.upc === updatedStock.item.upc);
         inventory[stockIndex] = updatedStock;
-        props.updateInventory(inventory);
+        handleRedirect(stockIndex)
       }
       props.history.goBack({params: {stockIndex}});
+    }
+  }
+
+  const handleRedirect = (stockIndex) => {
+    if(redirect === 'CHECKOUT') {
+      const stock = props.currentLocation.inventory[stockIndex];
+      let cart = props.cart;
+      console.log(stockIndex, stock)
+      props.updateCart(
+        [
+          ...cart,
+          {
+            title: stock.item.title,
+            price: stock.price,
+            quantity: 1,
+            upc: stock.item.upc
+          }
+        ]
+      )
+      props.history.push('/checkout');
     }
   }
 
