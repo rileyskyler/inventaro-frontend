@@ -31,23 +31,21 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ3NjA0MDksImV4cCI6MTU2NTAxOTYwOX0.4_7xJizQCdSumuHV7TvnhEcHFut-OeMq-UF3ji0Nk-w',
-      currentLocation: null,
-      cart: []
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ5NDA0OTAsImV4cCI6MTU2NTE5OTY5MH0.EqPjCaR3gvFL-Wya4OIGxsbuvE88Obp6ymmhAM074B4',
+      currentLocation: null
     }
     
     this.fetchApi = this.fetchApi.bind(this);
     this.loginUser = this.loginUser.bind(this);
     this.chooseLocation = this.chooseLocation.bind(this);
     this.updateInventory = this.updateInventory.bind(this);
-    this.updateCart = this.updateCart.bind(this);
   }
 
   async componentDidMount() {
     if(this.state.token) {
       await this.getUser()
       //for development
-      await this.chooseLocation(this.state.user.locations[0])
+      this.chooseLocation(this.state.user.locations[0])
       this.props.history.push({
         pathname: '/checkout'
       })
@@ -76,7 +74,6 @@ class App extends React.Component {
   }
 
   async chooseLocation(location) {
-    console.log(location)
     const reqBody = {
       query: `
         query {
@@ -98,19 +95,15 @@ class App extends React.Component {
     };
     const res = await this.fetchApi(reqBody);
     if(res) {
-      const updatedLocation = res.data.location;
-      this.setState({currentLocation: updatedLocation});
+      const location = res.data.location;
+      this.setState({currentLocation: location});
     }
   }
 
   async updateInventory(inventory) {
     this.setState(({ currentLocation }) => {
-      return {currentLocation: {...currentLocation, inventory}};
+      return {currentLocation: {...currentLocation, inventory}}
     })
-  }
-
-  async updateCart(cart) {
-    this.setState({cart});
   }
 
   async getUser() {
@@ -182,9 +175,6 @@ class App extends React.Component {
         checkAuth(
           <Checkout
             user={this.state.user}
-            cart={this.state.cart}
-            updateCart={this.updateCart}
-            addLocation={this.addLocation}
             currentLocation={this.state.currentLocation}
           />
         )

@@ -4,16 +4,48 @@ import { withRouter } from 'react-router-dom';
 
 const Register = props => {
 
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [registerInput, setRegisterInput] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+  
+  const handleRegisterInput = option => event => {
+    setRegisterInput({...registerInput, [option]: event.target.value});
+  }
+
+  const registerUser = async ({username, email, password})  => {
+    const reqBody = {
+      query: `
+        mutation {
+          createUser(
+            userInput: {
+              username: "${username}",
+              email: "${email}",
+              password: "${password}"
+            }
+          )
+          {
+            _id,
+            username,
+            email,
+            password
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      props.loginUser({email, password});
+    }
+  }
 
   return (
     <div>
       <Paper>
         <form noValidate autoComplete="off">
           <TextField
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={handleRegisterInput('username')}
             id="outlined-username-input"
             label="Username"
             type="username"
@@ -23,7 +55,7 @@ const Register = props => {
             variant="outlined"
           />
           <TextField
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleRegisterInput('email')}
             id="outlined-email-input"
             label="Email"
             type="email"
@@ -33,7 +65,7 @@ const Register = props => {
             variant="outlined"
           />
           <TextField
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handleRegisterInput('password')}
             id="outlined-password-input"
             label="Password"
             type="password"
@@ -42,7 +74,7 @@ const Register = props => {
             margin="normal"
             variant="outlined"
           />
-          <Button onClick={() => props.registerUser({username, email, password})}>Register</Button>
+          <Button onClick={() => registerUser(registerInput)}>Register</Button>
           <Button onClick={() => props.history.push("/")}>Cancel</Button>
         </form>
       </Paper>
