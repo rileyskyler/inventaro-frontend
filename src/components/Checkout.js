@@ -14,8 +14,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withRouter } from 'react-router-dom';
 
-const TAX_RATE = 0.07;
-
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
@@ -33,7 +31,6 @@ function priceFormat(price) {
 }
 
 const Prompt = props => {
-  console.log(props)
   return (
     <div>
       <Dialog
@@ -65,9 +62,8 @@ const Prompt = props => {
   );
 }
 
+
 const Checkout = props => {
-  console.log(props)
-  
   const [upcInput, setUpcInput] = useState('');
   const [cart, setCart] = useState([]);
   const [prompts, togglePrompts] = useState({
@@ -77,7 +73,6 @@ const Checkout = props => {
   const classes = useStyles();
 
   const togglePrompt = (prompt) => {
-
     switch (prompt) {
       case 'NO_STOCK':
         setOpen(true)
@@ -105,7 +100,6 @@ const Checkout = props => {
       props.cart[productIndex].quantity++
       props.updateCart([...cart]);
     } else {
-      console.log(stock)
       props.updateCart(
         [
           ...cart,
@@ -120,13 +114,11 @@ const Checkout = props => {
     }
   }
 
-
   function handleClickOpen() {
     setOpen(true);
   }
 
   const handleClose = () => {
-    console.log('handle')
     setOpen(false);
   }
 
@@ -137,6 +129,30 @@ const Checkout = props => {
     })
   }
 
+  const adjustProductQuantity = (productIndex, operand) => {
+    const cart = props.cart;
+    switch(operand){
+      case '+':
+        cart[productIndex].quantity++;
+        props.updateCart([...cart]);
+        break;
+      case '-':
+        cart[productIndex].quantity--;
+        props.updateCart([...cart]);
+        break;
+    }
+
+  }
+
+  let subtotal = 0, taxes = 0, total = 0;
+  if(props.cart.length) {
+    console.log('carting')
+    // console.log(props.cart)
+    // subtotal = props.cart.reduce((acc, i) => acc + 1)
+    subtotal = props.cart.reduce((acc, {price, quantity}) => acc + (price * quantity), 0)
+    taxes = 0.00 * subtotal;
+    total = subtotal + taxes;
+  }
 
   return (
     <div>
@@ -162,31 +178,34 @@ const Checkout = props => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {props.cart.map(product => {
+              {
+                props.cart.map((product, i) => (
+                  <TableRow key={product.title}>
+                    <TableCell>{product.title}</TableCell>
+                    <TableCell align="right">
+                      <div onClick={() => adjustProductQuantity(i, '-')}> - </div>
+                      {product.quantity}
+                      <div onClick={() => adjustProductQuantity(i, '+')}> + </div>
+                       </TableCell>
+                    <TableCell align="right">{priceFormat(product.price)}</TableCell>
+                  </TableRow>
+                ))
                 
-                console.log(product)
-                return (
-                <TableRow key={product.title}>
-                  <TableCell>{product.title}</TableCell>
-                  <TableCell align="right">- {product.quantity} +</TableCell>
-                  <TableCell align="right">{priceFormat(product.price)}</TableCell>
-                </TableRow>
-              )})}
-
-              {/* <TableRow>
+              }
+              <TableRow>
                 <TableCell rowSpan={3} />
                 <TableCell colSpan={2}>Subtotal</TableCell>
-                <TableCell align="right">{priceFormat(invoiceSubtotal)}</TableCell>
+                <TableCell align="right">{priceFormat(subtotal)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Tax</TableCell>
-                <TableCell align="right">{`${(TAX_RATE * 100).toFixed(0)} %`}</TableCell>
-                <TableCell align="right">{priceFormat(invoiceTaxes)}</TableCell>
+                <TableCell align="right">{`${(.00 * 100).toFixed(0)} %`}</TableCell>
+                <TableCell align="right">{priceFormat(taxes)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell colSpan={2}>Total</TableCell>
-                <TableCell align="right">{priceFormat(invoiceTotal)}</TableCell>
-              </TableRow> */}
+                <TableCell align="right">{priceFormat(total)}</TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </Paper>
