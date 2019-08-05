@@ -295,23 +295,19 @@ const root = {
       }
       else if (data.code === 'OK') {
         data.items.forEach(item => {
-          if(!brandSuggestions.includes(item.brand)) {
+          if(item.brand && !brandSuggestions.includes(item.brand)) {
             brandSuggestions.push(item.brand);
           }
-          if(item.offers.length) {
-            const priceSuggestion = (item.offers.reduce((accumulator, offer) => {
-              if(!titleSuggestions.includes(offer.title)) {
-                titleSuggestions.push(offer.title);
-              }
-              return accumulator + offer.price;
-            }, 0) / item.offers.length)
-            priceSuggestions.push(priceSuggestion);
+          if(item.title && !brandSuggestions.includes(item.title)) {
+            titleSuggestions.push(item.title);
           }
-          else if(item.lowest_recorded_price && item.highest_recorded_price) {
-            const suggestedPrice = ((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2)
-            priceSuggestions.push(
-              suggestedPrice
-            );
+          if(item.offers.length) {
+            priceSuggestions.push((item.offers.reduce((acc, { price }) => acc + price, 0) / item.offers.length).toFixed(2));
+            console.log(titleSuggestions)
+            titleSuggestions.push(...item.offers.filter(({ title }) => titleSuggestions.includes(title)).map(({ title }) => title));
+          }
+          if(item.lowest_recorded_price && item.highest_recorded_price) {
+            priceSuggestions.push(((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2));
           }
         })
       }
