@@ -51,3 +51,16 @@ Base queries
     [...Location] -> [...User]
 
 - Items -->
+
+## Queries
+
+```
+mutation {
+	createUser(userInput: {username: "", email: "" password: ""}) {
+		_id
+    username
+    email
+    password
+  }
+}
+```
