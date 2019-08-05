@@ -286,7 +286,7 @@ const root = {
   },
   productSuggestions: async (args) => {
     try {
-      let priceSuggestion = 0.00;
+      let priceSuggestions = [];
       let titleSuggestions = [];
       let brandSuggestions = [];
       const { data } = await axios.get(`https://api.upcitemdb.com/prod/trial/lookup?upc=${args.upc}`);
@@ -298,23 +298,27 @@ const root = {
           if(!brandSuggestions.includes(item.brand)) {
             brandSuggestions.push(item.brand);
           }
-          if(item.offers) {
-            priceSuggestion = (item.offers.reduce((accumulator, offer) => {
+          if(item.offers.length) {
+            const priceSuggestion = (item.offers.reduce((accumulator, offer) => {
               if(!titleSuggestions.includes(offer.title)) {
                 titleSuggestions.push(offer.title);
               }
               return accumulator + offer.price;
-            }, 0) / item.offers.length);
+            }, 0) / item.offers.length)
+            priceSuggestions.push(priceSuggestion);
           }
           else if(item.lowest_recorded_price && item.highest_recorded_price) {
-            priceSuggestion = (item.lowest_recorded_price  + item.highest_recorded_price) / 2;
+            const suggestedPrice = ((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2)
+            priceSuggestions.push(
+              suggestedPrice
+            );
           }
         })
       }
       return {
         titleSuggestions,
         brandSuggestions,
-        priceSuggestion: priceSuggestion.toFixed(2) + ''
+        priceSuggestions
       };
     }
     catch (err) {

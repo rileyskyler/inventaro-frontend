@@ -42,7 +42,7 @@ input ItemInput {
 type ProductSuggestions {
     titleSuggestions: [String!]
     brandSuggestions: [String!]
-    priceSuggestion: Float!
+    priceSuggestions: [Float!]
 }
 
 type Authentication {
