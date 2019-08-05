@@ -68,14 +68,15 @@ const AddInventory = props => {
         })
         setMode('CREATE_STOCK');
       } else {
+        console.log('here')
         setMode('CREATE_ITEM');
-        const productSuggestions = await getProductSuggestions(inventoryInput.upc);
+        console.log(inventoryInput.upc)
+        const productSuggestions = await getProductSuggestions(inventoryInput.upc)
         if(productSuggestions) {
           setProductSuggestions({
-            ...productSuggestions,
             title: productSuggestions.titleSuggestions,
             brand: productSuggestions.brandSuggestions,
-            price: [productSuggestions.priceSuggestion]
+            price: productSuggestions.priceSuggestions
           });
         }
       }
@@ -139,6 +140,7 @@ const AddInventory = props => {
           )
           {
             item {
+              title
               upc
               brand
             }
@@ -168,6 +170,7 @@ const AddInventory = props => {
           )
           {
             item {
+              title
               upc
               brand
             } 
@@ -188,13 +191,14 @@ const AddInventory = props => {
     if(mode === 'CREATE_ITEM') {
       item = await createItem();
       if(!item) {
-        throw new Error('Item not created!')
+        throw new Error('Item not created!');
       }
     }
     let inventory = props.currentLocation.inventory;
     if((mode === 'CREATE_ITEM' && item) || mode === 'CREATE_STOCK') {
       const createdStock = await createStock();
       if(createdStock) {
+        console.log(createdStock)
         inventory.push(createdStock);
         props.updateInventory(inventory);
         props.history.goBack();
@@ -202,14 +206,13 @@ const AddInventory = props => {
     }
     if(mode === 'UPDATE_STOCK') {
       const updatedStock = await updateStock();
+      let stockIndex
       if(updatedStock) {
-        const stockIndex = inventory.findIndex((stock) => {
-          return stock.item.upc === updatedStock.item.upc;
-        })
+        stockIndex = inventory.findIndex(stock => stock.item.upc === updatedStock.item.upc);
         inventory[stockIndex] = updatedStock;
         props.updateInventory(inventory);
       }
-      props.history.goBack();
+      props.history.goBack({params: {stockIndex}});
     }
   }
 
@@ -226,12 +229,13 @@ const AddInventory = props => {
         productSuggestions(upc: "${upc}") {
           titleSuggestions
           brandSuggestions
-          priceSuggestion
+          priceSuggestions
         }
       }
       `
     };
     const res = await props.fetchApi(reqBody);
+    console.log(res)
     if(res) {
       return res.data.productSuggestions;
     }

@@ -31,7 +31,7 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ3NjA0MDksImV4cCI6MTU2NTAxOTYwOX0.4_7xJizQCdSumuHV7TvnhEcHFut-OeMq-UF3ji0Nk-w',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjUwMzIxOTQsImV4cCI6MTU2NTI5MTM5NH0.j1JfbdWfoJCnSXlE1Id-8rNpI2gktIFk4b1HGPVK52s',
       currentLocation: null,
       cart: []
     }

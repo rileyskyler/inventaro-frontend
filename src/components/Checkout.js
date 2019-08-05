@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, ButtonGroup } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
@@ -72,6 +72,10 @@ const Checkout = props => {
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
 
+  useEffect(() => {
+    console.log(props)
+  }, []);
+
   const togglePrompt = (prompt) => {
     switch (prompt) {
       case 'NO_STOCK':
@@ -94,6 +98,7 @@ const Checkout = props => {
   }
 
   const addToCheckout = (stock) => {
+    console.log(stock)
     let cart = props.cart;
     const productIndex = cart.findIndex(product => stock.item.upc === product.upc);
     if(productIndex > -1) {
@@ -141,14 +146,10 @@ const Checkout = props => {
         props.updateCart([...cart]);
         break;
     }
-
   }
 
   let subtotal = 0, taxes = 0, total = 0;
   if(props.cart.length) {
-    console.log('carting')
-    // console.log(props.cart)
-    // subtotal = props.cart.reduce((acc, i) => acc + 1)
     subtotal = props.cart.reduce((acc, {price, quantity}) => acc + (price * quantity), 0)
     taxes = 0.00 * subtotal;
     total = subtotal + taxes;
@@ -181,7 +182,7 @@ const Checkout = props => {
               {
                 props.cart.map((product, i) => (
                   <TableRow key={product.title}>
-                    <TableCell>{product.title}</TableCell>
+                    <TableCell>{product.title.slice(0, 50) + '...'}</TableCell>
                     <TableCell align="right">
                       <div onClick={() => adjustProductQuantity(i, '-')}> - </div>
                       {product.quantity}
