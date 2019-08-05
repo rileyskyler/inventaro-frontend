@@ -3,10 +3,11 @@ import { TextField, Button, ButtonGroup } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 
 const AddInventory = props => {
+
   const [mode, setMode] = useState('DEFAULT');
 
   const [inventoryInput, setInventoryInput] = useState({
-    upc:'09661984601',
+    upc:'',
     price: '0.00',
     quantity: '0',
     title: '',
@@ -18,6 +19,16 @@ const AddInventory = props => {
     brand: [],
     price: []
   })
+
+  useEffect(() => {
+    if(props.location.params) {
+      setInventoryInput({
+        ...inventoryInput, upc: props.location.params.upc
+      })
+      findProduct()
+    }
+  }, []);
+
 
   const handleInput = property => event => {
 
@@ -58,7 +69,7 @@ const AddInventory = props => {
         setMode('CREATE_STOCK');
       } else {
         setMode('CREATE_ITEM');
-        const productSuggestions = await getProductSuggestions(upc);
+        const productSuggestions = await getProductSuggestions(inventoryInput.upc);
         if(productSuggestions) {
           setProductSuggestions({
             ...productSuggestions,
@@ -173,7 +184,6 @@ const AddInventory = props => {
   }
 
   const handleSubmit = async () => {
-
     let item;
     if(mode === 'CREATE_ITEM') {
       item = await createItem();
@@ -187,7 +197,7 @@ const AddInventory = props => {
       if(createdStock) {
         inventory.push(createdStock);
         props.updateInventory(inventory);
-        props.history.push('/dashboard');
+        props.history.goBack();
       }
     }
     if(mode === 'UPDATE_STOCK') {
@@ -199,7 +209,7 @@ const AddInventory = props => {
         inventory[stockIndex] = updatedStock;
         props.updateInventory(inventory);
       }
-      props.history.push('/dashboard');
+      props.history.goBack();
     }
   }
 
@@ -363,7 +373,10 @@ const AddInventory = props => {
     }
     else if(mode === 'CREATE_ITEM') {
       return (
-        <Button onClick={() => handleSubmit()}>Create</Button>
+        <>
+          <Button onClick={() => handleSubmit()}>Create</Button>
+          <Button onClick={() => props.history.goBack()}>Cancel</Button>
+        </>
       )
     }
   }

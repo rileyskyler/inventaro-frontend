@@ -1,12 +1,12 @@
 import React from 'react';
-import Navigation from './Navigation';
-import Landing from './Landing';
-import Dashboard from './Dashboard';
-import AddInventory from './AddInventory';
-import AddLocation from './AddLocation';
-import Login from './Login';
-import Register from './Register';
-import Checkout from './Checkout';
+import Navigation from './components/Navigation';
+import Landing from './components/Landing';
+import Dashboard from './components/Dashboard';
+import AddInventory from './components/AddInventory';
+import AddLocation from './components/AddLocation';
+import Login from './components/Login';
+import Register from './components/Register';
+import Checkout from './components/Checkout';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 
@@ -31,7 +31,7 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ3NjA0MDksImV4cCI6MTU2NTAxOTYwOX0.4_7xJizQCdSumuHV7TvnhEcHFut-OeMq-UF3ji0Nk-w',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ5NDA0OTAsImV4cCI6MTU2NTE5OTY5MH0.EqPjCaR3gvFL-Wya4OIGxsbuvE88Obp6ymmhAM074B4',
       currentLocation: null
     }
     
@@ -47,8 +47,7 @@ class App extends React.Component {
       //for development
       this.chooseLocation(this.state.user.locations[0])
       this.props.history.push({
-        pathname: '/add-inventory',
-        param: { p: 'test'}
+        pathname: '/checkout'
       })
     }
   }
@@ -176,7 +175,7 @@ class App extends React.Component {
         checkAuth(
           <Checkout
             user={this.state.user}
-            addLocation={this.addLocation}
+            currentLocation={this.state.currentLocation}
           />
         )
       )
