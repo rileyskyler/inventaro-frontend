@@ -39,23 +39,24 @@ const Prompt = props => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Item not in inventory!"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Item not found</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            This product is not in this locations inventory.
+            A product with this UPC is not found at this location. 
           </DialogContentText>
         </DialogContent>
         <DialogActions>
 
           <Button onClick={props.handleClose} color="primary">
-            Add Product Manually
+            Add Manually
           </Button>
           <Button onClick={props.handleAddInventory} color="primary">
-            Add product to inventory
+            Add Inventory
           </Button>
           <Button onClick={props.handleClose} color="primary">
             Cancel
           </Button>
+          <TextField>Sample</TextField>
         </DialogActions>
       </Dialog>
     </div>
@@ -123,6 +124,7 @@ const Checkout = props => {
   }
 
   const handleClose = () => {
+    setUpcInput('')
     setOpen(false);
   }
 
@@ -157,8 +159,8 @@ const Checkout = props => {
     total = subtotal + taxes;
   }
 
-  return (
-    <div>
+  const upcInputField = () => {
+    return (
       <TextField
         onChange={handleUpc()}
         id="upc"
@@ -171,50 +173,70 @@ const Checkout = props => {
         autoFocus
         value={upcInput}
       />
-      <Paper className={classes.root}>
-          <Table className={classes.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Product</TableCell>
-                <TableCell align="right">Quantity</TableCell>
-                <TableCell align="right">Price</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {
-                props.cart.map((product, i) => (
-                  <TableRow key={product.title}>
-                    <TableCell>{product.title.slice(0, 50) + '...'}</TableCell>
-                    <TableCell align="right">
-                      <div onClick={() => adjustProductQuantity(i, '-')}> - </div>
-                      {product.quantity}
-                      <div onClick={() => adjustProductQuantity(i, '+')}> + </div>
-                       </TableCell>
-                    <TableCell align="right">{priceFormat(product.price)}</TableCell>
-                  </TableRow>
-                ))
-                
-              }
-              <TableRow>
-                <TableCell rowSpan={3} />
-                <TableCell colSpan={2}>Subtotal</TableCell>
-                <TableCell align="right">{priceFormat(subtotal)}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Tax</TableCell>
-                <TableCell align="right">{`${(.00 * 100).toFixed(0)} %`}</TableCell>
-                <TableCell align="right">{priceFormat(taxes)}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell colSpan={2}>Total</TableCell>
-                <TableCell align="right">{priceFormat(total)}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </Paper>
-        <Prompt open={open} handleAddInventory={handleAddInventory} handleClose={handleClose} />
-    </div>
-  )
+    )
+ }
+
+  if(true) {
+    return (
+      <div>
+        {upcInputField()}
+        <Paper className={classes.root}>
+            <Table className={classes.table}>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center" >Product</TableCell>
+                  <TableCell align="center">Quantity</TableCell>
+                  <TableCell align="right">Price</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {
+                  props.cart.map((product, i) => (
+                    <TableRow key={product.title}>
+                      <TableCell>
+                        {
+                          product.title.length >= 50
+                          ? product.title.slice(0, 50) + '...'
+                          : product.title
+                        }
+                      </TableCell>
+                      <TableCell align="center">
+                        <div onClick={() => adjustProductQuantity(i, '+')}> + </div>
+                          {product.quantity}
+                        <div onClick={() => adjustProductQuantity(i, '-')}> - </div>
+                      </TableCell>
+                      <TableCell align="right">{priceFormat(product.price)}</TableCell>
+                    </TableRow>
+                  ))
+                  
+                }
+                <TableRow>
+                  <TableCell rowSpan={3} />
+                  <TableCell colSpan={2}>Subtotal</TableCell>
+                  <TableCell align="right">{priceFormat(subtotal)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Tax</TableCell>
+                  <TableCell align="right">{`${(.00 * 100).toFixed(0)} %`}</TableCell>
+                  <TableCell align="right">{priceFormat(taxes)}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell colSpan={2}>Total</TableCell>
+                  <TableCell align="right">{priceFormat(total)}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Paper>
+          <Prompt open={open} handleAddInventory={handleAddInventory} handleClose={handleClose} />
+      </div>
+    )
+  } else {
+    return (
+      <div>
+        {upcInputField()}
+        <div>Cart is empty.</div>
+      </div>)
+  } 
 }
 
 export default withRouter(Checkout);

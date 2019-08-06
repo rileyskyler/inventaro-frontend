@@ -1,5 +1,5 @@
 import React from 'react';
-import Navigation from './components/Navigation';
+import Navigation from './components/Navbar';
 import Landing from './components/Landing';
 import Dashboard from './components/Dashboard';
 import AddInventory from './components/AddInventory';

@@ -14,12 +14,12 @@ import { withRouter } from 'react-router-dom';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
-class Navigation extends React.Component {
+class Navbar extends React.Component {
 
   constructor(props) {
     super(props)
 
-    this.state ={
+    this.state = {
       isSidebarToggled: false,
       isLocationMenuToggled: false,
     }
@@ -145,4 +145,4 @@ class Navigation extends React.Component {
 }
 
 
-export default withRouter(Navigation);
+export default withRouter(Navbar);
