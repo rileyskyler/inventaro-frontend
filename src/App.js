@@ -2,6 +2,7 @@ import React from 'react';
 import Navigation from './components/Navbar';
 import Landing from './components/Landing';
 import Dashboard from './components/Dashboard';
+import Inventory from './components/Inventory'
 import AddInventory from './components/AddInventory';
 import AddLocation from './components/AddLocation';
 import Login from './components/Login';
@@ -49,7 +50,7 @@ class App extends React.Component {
       //for development
       await this.chooseLocation(this.state.user.locations[0])
       this.props.history.push({
-        pathname: '/checkout'
+        pathname: '/inventory'
       })
     }
   }
@@ -90,6 +91,7 @@ class App extends React.Component {
               item {
                 title
                 upc
+                brand
               }
             }
           }
@@ -203,6 +205,16 @@ class App extends React.Component {
       )
     }
 
+    const inventory = () => {
+      return (
+        checkAuth(
+          <Inventory 
+            currentLocation={this.state.currentLocation}
+          />
+        )
+      )
+    }
+
     const addInventory = () => {
       return (
         checkAuth(
@@ -248,6 +260,7 @@ class App extends React.Component {
           <Route exact path='/login' render={login}/>
           <Route exact path='/register' render={register}/>
           <Route path='/dashboard' render={dashboard} />
+          <Route path='/inventory' render={inventory}/>
           <Route path='/add-inventory' render={addInventory}/>
           <Route path='/add-location' render={addLocation}/>
           <Route path='/checkout' render={checkout}/>

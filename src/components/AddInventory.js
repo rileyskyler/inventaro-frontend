@@ -6,6 +6,7 @@ const AddInventory = props => {
 
   const [mode, setMode] = useState('DEFAULT');
   const [redirect, setRedirect] = useState('DEFAULT');
+  const [ isSearching, setIsSearching ] = useState(false);
 
   const [inventoryInput, setInventoryInput] = useState({
     upc:'',
@@ -37,19 +38,35 @@ const AddInventory = props => {
 
 
   const handleInput = property => event => {
-
     setInventoryInput({
       ...inventoryInput, [property]: event.target.value
     })
+    return
   }
 
-  const handleUpcInput = (event) => {
+  const handleUpcInput = async (event) => {
     setMode('DEFAULT');
     const upc = event.target.value;
-    setInventoryInput({...inventoryInput, upc});
+    await setInventoryInput({...inventoryInput, upc});
   }
 
+  useEffect(() => {
+    if(inventoryInput.upc.length === 12) {
+      console.log('dd')
+      if(!isSearching) {
+        setIsSearching(true);
+        setTimeout(() => {
+          console.log('we')
+          findProduct()
+          setIsSearching(false);
+        }, 3000)
+      }
+    }
+  }, [inventoryInput])
+
+
   const findProduct = async () => {
+    console.log(inventoryInput.upc.length);
     if(inventoryInput.upc.length !== 12) {
       return;
     }
