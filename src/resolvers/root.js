@@ -295,19 +295,16 @@ const root = {
       }
       else if (data.code === 'OK') {
         data.items.forEach(item => {
-          if(item.brand && !brandSuggestions.includes(item.brand)) {
-            brandSuggestions.push(item.brand);
-          }
-          if(item.title && !brandSuggestions.includes(item.title)) {
-            titleSuggestions.push(item.title);
-          }
-          if(item.offers.length) {
-            priceSuggestions.push((item.offers.reduce((acc, { price }) => acc + price, 0) / item.offers.length).toFixed(2));
-            titleSuggestions = [...new Set([...titleSuggestions, ...item.offers.map(({ title }) =>  title)])];
-          }
-          if(item.lowest_recorded_price && item.highest_recorded_price) {
-            priceSuggestions.push(((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2));
-          }
+          brandSuggestions = [ ...new Set([ ...brandSuggestions, item.brand ]) ];
+          titleSuggestions = [ ...new Set([
+            ...titleSuggestions, item.title,
+            ...(item.offers || []).map(({ title }) =>  title)
+          ])];
+          priceSuggestions = [ ...new Set([
+              ...priceSuggestions,
+              ...[((item.offers || []).reduce((acc, { price }) => acc + price, 0) / (item.offers.length || 1)).toFixed(2)].filter(p => p > 0),
+              ((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2)
+          ])]
         })
       }
       return {
