@@ -8,26 +8,21 @@ import AddLocation from './components/AddLocation';
 import Login from './components/Login';
 import Register from './components/Register';
 import Checkout from './components/Checkout';
+import NavBottom from './components/NavBottom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 
 const styles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(3, 2),
-    flexGrow: 1
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1
+    height: '100vh',
+    width: '100vw'
   }
 }));
 
 class App extends React.Component {
   
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     
     this.state = {
       user: null,
@@ -36,6 +31,7 @@ class App extends React.Component {
       currentLocation: null,
       cart: []
     }
+    console.log(this.props)
     
     this.fetchApi = this.fetchApi.bind(this);
     this.loginUser = this.loginUser.bind(this);
@@ -107,7 +103,7 @@ class App extends React.Component {
 
   async updateInventory(inventory) {
     this.setState(({ currentLocation }) => {
-      return {currentLocation: {...currentLocation, inventory}};
+      return {currentLocation: { ...currentLocation, inventory }};
     })
   }
 
@@ -124,7 +120,7 @@ class App extends React.Component {
     const res = await this.fetchApi(reqBody);
     if(res) {
       const user = res.data.user;
-      this.setState({user});
+      this.setState({ user });
       return;
     }
   }
@@ -146,15 +142,12 @@ class App extends React.Component {
     const res = await this.fetchApi(reqBody);
     if(res) {
       const token = res.data.login.token;
-
-      await this.setState({token});
+      await this.setState({ token });
       await this.getUser();
       this.props.history.push('/dashboard');
     }
   }
 
-
-  
   render() {
     
     const landing = () => {
@@ -240,11 +233,13 @@ class App extends React.Component {
       )
     }
 
-    const checkAuth = (componentToRender) => (
-      (this.state.token && this.state.user)
-      ? componentToRender
-      : <Redirect to='/'/>
-    )
+    const checkAuth = (componentToRender) => {
+      if(this.state.token && this.state.user){
+        return componentToRender
+      } else {
+        return <Redirect to='/'/>
+      }
+    }
 
     return (
       <div>
@@ -259,12 +254,13 @@ class App extends React.Component {
           <Route exact path='/' render={landing}/>
           <Route exact path='/login' render={login}/>
           <Route exact path='/register' render={register}/>
-          <Route path='/dashboard' render={dashboard} />
-          <Route path='/inventory' render={inventory}/>
-          <Route path='/add-inventory' render={addInventory}/>
-          <Route path='/add-location' render={addLocation}/>
-          <Route path='/checkout' render={checkout}/>
+          <Route exact path='/dashboard' render={dashboard} />
+          <Route exact path='/inventory' render={inventory}/>
+          <Route exact path='/add-inventory' render={addInventory}/>
+          <Route exact path='/add-location' render={addLocation}/>
+          <Route exact path='/checkout' render={checkout}/>
         </Switch>
+        <NavBottom />
       </div>
     );
   }

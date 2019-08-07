@@ -97,7 +97,13 @@ class Navbar extends React.Component {
 
   const dashboardNav = () => {
     return (  
-      <div className={this.props.classes.root}>
+      <div 
+        style={{
+          width: '100%',
+          position: 'fixed',
+          top: 0
+        }}
+      >
         <AppBar position="static">
           <Toolbar>
             <IconButton onClick={() => this.toggleSidebar()} edge="start" className={this.props.classes.menuButton} color="inherit" aria-label="Menu">
@@ -107,11 +113,7 @@ class Navbar extends React.Component {
             <Typography onClick={() => this.props.history.push(`/`)} variant="h6" className={this.props.classes.title}>
               Inventaro
             </Typography>
-              <Button
-                onClick={() => this.props.history.push(`/dashboard`)} color="inherit">
-                Dashboard
-              </Button>
-              {locationMenu()}
+              Current Location: {locationMenu()}
           </Toolbar>
         </AppBar>
         <Drawer open={this.state.isSidebarToggled} onClose={() => this.toggleSidebar()} >

@@ -133,7 +133,7 @@ const Checkout = props => {
       pathname: '/add-inventory',
       params: {
         upc: upcInput,
-        redirect: 'CHECKOUT'
+        redirect: '/checkout'
       }
     })
   }

@@ -32,11 +32,11 @@ const InventoryList = props => {
   // const r = props.inventory.filter(stock => Object.keys(stock.item).find(prop => prop.toUpperCase().includes(props.searchInput.toUpperCase())))
   const r = props.inventory.filter(({ item }) => Object.keys(item).find(prop => item[prop].toLowerCase().includes(props.searchInput.toLowerCase())))
   console.log(r)
-  return r.map(stock => {
+  return r.map((stock, i) => {
     return (
-      <TableRow key={stock._id}>
+      <TableRow key={i}>
         <TableCell align="center">
-          <EditIcon key={stock._id} onClick={() => props.handleEditClick(stock.item.upc)}/>
+          <EditIcon onClick={() => props.handleEditClick(stock.item.upc)}/>
         </TableCell>
         <TableCell align="center">{stock.item.title}</TableCell>
         <TableCell align="center">{stock.item.brand}</TableCell>
@@ -57,9 +57,10 @@ const Inventory = props => {
   const classes = useStyles();
 
   useEffect(() => {
-    console.log(props)
+    if(props.location.params) {
+      setSearchInput(props.location.params.searchInput)
+    }
   }, []);
-
 
 
   const handleSearch = option => event => {
@@ -71,24 +72,25 @@ const Inventory = props => {
       pathname: '/add-inventory',
       params: {
         upc,
-        mode: 'INVENTORY'
+        searchInput,
+        redirect: 'INVENTORY'
       }
     })
   }
 
   return (
     <div>
-              <TextField
-          onChange={handleSearch()}
-          id="upc"
-          label="upc"
-          type="text"
-          name="upc"
-          autoComplete="text"
-          margin="normal"
-          variant="outlined"
+
+      <TextField
+        id="outlined-search"
+        label="Search"
+        type="search"
+        className={classes.textField}
+        margin="normal"
+        variant="outlined"
+        onChange={handleSearch()}
           value={searchInput}
-        />
+      />
       <Paper className={classes.root}>
           <Table className={classes.table}>
             <TableHead>

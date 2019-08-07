@@ -23,7 +23,6 @@ const AddInventory = props => {
   })
 
   useEffect(() => {
-
     if(props.location.params) {
       const { upc, redirect } = props.location.params;
       setInventoryInput({
@@ -32,7 +31,6 @@ const AddInventory = props => {
       if(redirect) {
         setRedirect(redirect);
       }
-      findProduct()
     }
   }, []);
 
@@ -59,7 +57,7 @@ const AddInventory = props => {
           console.log('we')
           findProduct()
           setIsSearching(false);
-        }, 3000)
+        }, 1000)
       }
     }
   }, [inventoryInput])
@@ -235,29 +233,36 @@ const AddInventory = props => {
         inventory[stockIndex] = updatedStock;
         handleRedirect(stockIndex)
       }
-      props.history.goBack({params: {stockIndex}});
     }
   }
 
   const handleRedirect = (stockIndex) => {
-    if(redirect === 'CHECKOUT') {
-      const stock = props.currentLocation.inventory[stockIndex];
-      let cart = props.cart;
-      console.log(stockIndex, stock)
-      props.updateCart(
-        [
-          ...cart,
-          {
-            title: stock.item.title,
-            price: stock.price,
-            quantity: 1,
-            upc: stock.item.upc
-          }
-        ]
-      )
-      props.history.push('/checkout');
+    switch(redirect) {
+      case 'CHECKOUT':
+        const stock = props.currentLocation.inventory[stockIndex];
+        let cart = props.cart;
+        props.updateCart(
+          [
+            ...cart,
+            {
+              title: stock.item.title,
+              price: stock.price,
+              quantity: 1,
+              upc: stock.item.upc
+            }
+          ]
+        )
+        props.history.push('/checkout');
+        break;
+      case 'INVENTORY':
+        props.history.push({
+          pathname: '/inventory',
+          params: {searchInput: props.location.params.searchInput}
+        });
+        break;
     }
   }
+
 
   const handleSuggestionSelection = (property, value) => {
     setInventoryInput({
@@ -278,7 +283,6 @@ const AddInventory = props => {
       `
     };
     const res = await props.fetchApi(reqBody);
-    console.log(res)
     if(res) {
       return res.data.productSuggestions;
     }
@@ -318,7 +322,6 @@ const AddInventory = props => {
           variant="outlined"
           value={inventoryInput.upc}
         />
-        <Button onClick={() => findProduct(inventoryInput.upc)}>Find</Button>
       </>
     )
   }
