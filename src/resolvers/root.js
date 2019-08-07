@@ -303,8 +303,7 @@ const root = {
           }
           if(item.offers.length) {
             priceSuggestions.push((item.offers.reduce((acc, { price }) => acc + price, 0) / item.offers.length).toFixed(2));
-            console.log(titleSuggestions)
-            titleSuggestions.push(...item.offers.filter(({ title }) => titleSuggestions.includes(title)).map(({ title }) => title));
+            titleSuggestions = [...new Set([...item.offers.map(({ title }) =>  title)])];
           }
           if(item.lowest_recorded_price && item.highest_recorded_price) {
             priceSuggestions.push(((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2));
