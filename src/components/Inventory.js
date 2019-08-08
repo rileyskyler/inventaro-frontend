@@ -28,11 +28,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const InventoryList = props => {
-  console.log(props)
-  // const r = props.inventory.filter(stock => Object.keys(stock.item).find(prop => prop.toUpperCase().includes(props.searchInput.toUpperCase())))
-  const r = props.inventory.filter(({ item }) => Object.keys(item).find(prop => item[prop].toLowerCase().includes(props.searchInput.toLowerCase())))
-  console.log(r)
-  return r.map((stock, i) => {
+  const inventoryList = props.inventory.filter(({ item }) => Object.keys(item).find(prop => item[prop].toLowerCase().includes(props.searchInput.toLowerCase())))
+  return inventoryList.map((stock, i) => {
     return (
       <TableRow key={i}>
         <TableCell align="center">
@@ -69,7 +66,7 @@ const Inventory = props => {
 
   const handleEditClick =  (upc) => {
     props.history.push({
-      pathname: '/add-inventory',
+      pathname: '/inventory/add',
       params: {
         upc,
         searchInput,

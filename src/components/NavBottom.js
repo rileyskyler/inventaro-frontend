@@ -8,13 +8,15 @@ import LocationOnIcon from '@material-ui/icons/LocationOn';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import AccountIcon from '@material-ui/icons/AccountCircle';
+import LocationIcon from '@material-ui/icons/Store';
 
 import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
     width: '100%',
-    bottom: 0
+    position: 'fixed',
+    bottom: 0,
   },
 });
 
@@ -24,16 +26,9 @@ const NavBottom = props => {
 
   const handleSetValue = (newValue) => {
     setValue(newValue)
-    switch(newValue) {
-      case 0:
-        console.log('inventory')
-        props.history.push('/inventory');
-        break;
-      case 1:
-        console.log('checkout')
-        props.history.push('/checkout');
-        break;
-    }
+    const locations = ['inventory', 'checkout', 'locations', 'account'];
+    props.history.push(`/${locations[newValue]}`)
+
   }
 
   return (
@@ -43,14 +38,11 @@ const NavBottom = props => {
         handleSetValue(newValue);
       }}
       showLabels
-      style={{
-        width: '100%',
-        position: 'fixed',
-        bottom: 0
-      }}
+      className={classes.root}
     >
       <BottomNavigationAction label="Inventory" icon={<ViewListIcon />} />
       <BottomNavigationAction label="Checkout" icon={<ShoppingCartIcon />} />
+      <BottomNavigationAction label="Locations" icon={<LocationIcon />} />
       <BottomNavigationAction label="Account" icon={<AccountIcon />} />
     </BottomNavigation>
   );

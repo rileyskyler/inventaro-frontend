@@ -130,7 +130,7 @@ const Checkout = props => {
 
   const handleAddInventory = () => {
     props.history.push({
-      pathname: '/add-inventory',
+      pathname: '/inventory/add',
       params: {
         upc: upcInput,
         redirect: '/checkout'
@@ -167,11 +167,12 @@ const Checkout = props => {
         label="upc"
         type="text"
         name="upc"
+        variant="outlined"
         autoComplete="text"
         margin="normal"
-        variant="outlined"
         autoFocus
         value={upcInput}
+        style={{marginLeft: '10%', marginBottom: '5%'}}
       />
     )
  }
@@ -179,8 +180,14 @@ const Checkout = props => {
   if(true) {
     return (
       <div>
-        {upcInputField()}
-        <Paper className={classes.root}>
+        <Paper
+          style={{
+            width: '100%',
+            position: 'fixed',
+            top: '10%',
+          }}
+        >
+          {upcInputField()}
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>

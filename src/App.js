@@ -11,6 +11,7 @@ import Checkout from './components/Checkout';
 import NavBottom from './components/NavBottom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
+import { TextField, Button, Container, Typography, Box } from '@material-ui/core';
 
 const styles = makeStyles(theme => ({
   root: {
@@ -31,7 +32,6 @@ class App extends React.Component {
       currentLocation: null,
       cart: []
     }
-    console.log(this.props)
     
     this.fetchApi = this.fetchApi.bind(this);
     this.loginUser = this.loginUser.bind(this);
@@ -46,7 +46,7 @@ class App extends React.Component {
       //for development
       await this.chooseLocation(this.state.user.locations[0])
       this.props.history.push({
-        pathname: '/inventory'
+        pathname: '/'
       })
     }
   }
@@ -73,7 +73,7 @@ class App extends React.Component {
   }
 
   async chooseLocation(location) {
-    console.log(location)
+
     const reqBody = {
       query: `
         query {
@@ -250,16 +250,18 @@ class App extends React.Component {
           currentLocation={this.state.currentLocation}
           chooseLocation={this.chooseLocation}
         />
-        <Switch>
-          <Route exact path='/' render={landing}/>
-          <Route exact path='/login' render={login}/>
-          <Route exact path='/register' render={register}/>
-          <Route exact path='/dashboard' render={dashboard} />
-          <Route exact path='/inventory' render={inventory}/>
-          <Route exact path='/add-inventory' render={addInventory}/>
-          <Route exact path='/add-location' render={addLocation}/>
-          <Route exact path='/checkout' render={checkout}/>
-        </Switch>
+        <Box>
+          <Switch>
+            <Route exact path='/' render={landing}/>
+            <Route exact path='/login' render={login}/>
+            <Route exact path='/register' render={register}/>
+            <Route exact path='/dashboard' render={dashboard} />
+            <Route exact path='/inventory' render={inventory}/>
+            <Route exact path='/inventory/add' render={addInventory}/>
+            <Route exact path='/location/add' render={addLocation}/>
+            <Route exact path='/checkout' render={checkout}/>
+          </Switch>
+        </Box>
         <NavBottom />
       </div>
     );

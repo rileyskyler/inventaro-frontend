@@ -7,7 +7,7 @@ const AddLocation = props => {
   });
 
   const handleLocationInput = option => event => {
-    setLocationInput({...locationInput, [option]: event.target.value});
+    setLocationInput({ ...locationInput, [option]: event.target.value });
   }
 
   const addLocation = async ({title}) => {
