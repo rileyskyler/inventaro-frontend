@@ -8,7 +8,6 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(3, 2),
   },
 }));
-
 function Login(props) {
   
   const [loginInput, setLoginInput] = useState({
@@ -21,41 +20,34 @@ function Login(props) {
   }
   
   const classes = useStyles();
-  return (
+  return (    
     <div>
-      <Paper className={classes.root}>
-        test
-      </Paper>
+      <h3>Login</h3>
+      <form noValidate autoComplete="off">
+        <TextField
+          onChange={handleLoginInput('email')}
+          id="email"
+          label="Email or username"
+          type="email"
+          name="email"
+          autoComplete="email"
+          margin="normal"
+          variant="outlined"
+        />
+        <TextField
+          onChange={handleLoginInput('password')}
+          id="password"
+          label="Password"
+          type="password"
+          name="password"
+          autoComplete="email"
+          margin="normal"
+          variant="outlined"
+        />
+        <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
+        <Button onClick={() => props.history.push('/')}>Cancel</Button>
+      </form>
     </div>
-
-      
-    // <div>
-    //   <h3>Login</h3>
-    //   <form noValidate autoComplete="off">
-    //     <TextField
-    //       onChange={handleLoginInput('email')}
-    //       id="email"
-    //       label="Email or username"
-    //       type="email"
-    //       name="email"
-    //       autoComplete="email"
-    //       margin="normal"
-    //       variant="outlined"
-    //     />
-    //     <TextField
-    //       onChange={handleLoginInput('password')}
-    //       id="password"
-    //       label="Password"
-    //       type="password"
-    //       name="password"
-    //       autoComplete="email"
-    //       margin="normal"
-    //       variant="outlined"
-    //     />
-    //     <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
-    //     <Button onClick={() => props.history.push('/')}>Cancel</Button>
-    //   </form>
-    // </div>
   )
 }
 
