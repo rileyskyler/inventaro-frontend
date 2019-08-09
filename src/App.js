@@ -47,7 +47,7 @@ class App extends React.Component {
       //for development
       await this.chooseLocation(this.state.user.locations[0]);
       this.props.history.push({
-        pathname: '/checkout'
+        pathname: '/inventory'
       });
       //
     }
@@ -74,35 +74,7 @@ class App extends React.Component {
     }
   }
 
-  updateStock = async ({stockId, upc, quantity, price}) => {
-    const reqBody = {
-      query: `
-        mutation {
-          updateStock(
-            updateStockInput: {
-              stockId: "${inventoryInput.stockId}",
-              upc: "${inventoryInput.upc}",
-              quantity: ${inventoryInput.quantity},
-              price: "${inventoryInput.price}"
-            }
-          )
-          {
-            item {
-              title
-              upc
-              brand
-            } 
-            price
-            quantity
-          }
-        }
-      `
-    };
-    const res = await props.fetchApi(reqBody);
-    if(res) {
-      return res.data.updateStock;
-    }
-  }
+  
 
   async chooseLocation(location) {
 

@@ -98,7 +98,6 @@ const Prompt = props => {
           <Button onClick={props.handleClose} color="primary">
             Cancel
           </Button>
-          <TextField>Sample</TextField>
         </DialogActions>
       </Dialog>
     </div>
@@ -200,7 +199,7 @@ const Checkout = props => {
     total = subtotal + taxes;
   }
 
-  if(props.cart.length) {
+  if(true) {
     return (
       <div>
         <Paper className={classes.inputRoot}>
