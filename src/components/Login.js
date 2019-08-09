@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Paper } from '@material-ui/core';
+import { TextField, Button, Container, Typography, Paper, Box } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(3, 2),
+    padding: theme.spacing(5, 10),
+    marginTop: theme.spacing(50)
   },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200
+  }
 }));
+
 function Login(props) {
-  
+  const classes = useStyles();
+
   const [loginInput, setLoginInput] = useState({
-    title: ''
+    username: '',
+    password: ''
   });
   
   
@@ -19,34 +28,46 @@ function Login(props) {
     setLoginInput({...loginInput, [option]: event.target.value});
   }
   
-  const classes = useStyles();
+
   return (    
     <div>
-      <h3>Login</h3>
-      <form noValidate autoComplete="off">
-        <TextField
-          onChange={handleLoginInput('email')}
-          id="email"
-          label="Email or username"
-          type="email"
-          name="email"
-          autoComplete="email"
-          margin="normal"
-          variant="outlined"
-        />
-        <TextField
-          onChange={handleLoginInput('password')}
-          id="password"
-          label="Password"
-          type="password"
-          name="password"
-          autoComplete="email"
-          margin="normal"
-          variant="outlined"
-        />
-        <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
-        <Button onClick={() => props.history.push('/')}>Cancel</Button>
-      </form>
+      <Paper className={classes.root}>
+        <Typography variant="h5" component="h3" align="center">
+          Login
+        </Typography>
+        <Box>
+          <TextField
+            onChange={handleLoginInput('username')}
+            className={classes.textField}
+            id="username"
+            label="Username"
+            type="username"
+            name="username"
+            autoComplete="username"
+            margin="normal"
+            variant="outlined"
+            value={loginInput.username}
+          />
+        </Box>
+        <Box>
+          <TextField
+            onChange={handleLoginInput('password')}
+            className={classes.textField}
+            id="password"
+            label="Password"
+            type="password"
+            name="password"
+            autoComplete="email"
+            margin="normal"
+            variant="outlined"
+            value={loginInput.password}
+          />
+        </Box>
+        <Box align="center">
+          <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
+          <Button onClick={() => props.history.push('/')}>Cancel</Button>
+        </Box>
+      </Paper>
     </div>
   )
 }

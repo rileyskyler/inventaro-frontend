@@ -8,6 +8,7 @@ import AddLocation from './components/AddLocation';
 import Login from './components/Login';
 import Register from './components/Register';
 import Checkout from './components/Checkout';
+import Locations from './components/Locations';
 import NavBottom from './components/NavBottom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
@@ -28,7 +29,7 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjUwMzIxOTQsImV4cCI6MTU2NTI5MTM5NH0.j1JfbdWfoJCnSXlE1Id-8rNpI2gktIFk4b1HGPVK52s',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjUyOTE1NjcsImV4cCI6MTU2NTU1MDc2N30.Joj3cg6Mnt27HnClr7KtLUA6OjVSKRh9UMASbnWmrcY',
       currentLocation: null,
       cart: []
     }
@@ -42,12 +43,13 @@ class App extends React.Component {
 
   async componentDidMount() {
     if(this.state.token) {
-      await this.getUser()
+      await this.getUser();
       //for development
-      await this.chooseLocation(this.state.user.locations[0])
+      await this.chooseLocation(this.state.user.locations[0]);
       this.props.history.push({
-        pathname: '/'
-      })
+        pathname: '/checkout'
+      });
+      //
     }
   }
 
@@ -69,6 +71,36 @@ class App extends React.Component {
     }
     catch (err) {
       throw err
+    }
+  }
+
+  updateStock = async ({stockId, upc, quantity, price}) => {
+    const reqBody = {
+      query: `
+        mutation {
+          updateStock(
+            updateStockInput: {
+              stockId: "${inventoryInput.stockId}",
+              upc: "${inventoryInput.upc}",
+              quantity: ${inventoryInput.quantity},
+              price: "${inventoryInput.price}"
+            }
+          )
+          {
+            item {
+              title
+              upc
+              brand
+            } 
+            price
+            quantity
+          }
+        }
+      `
+    };
+    const res = await props.fetchApi(reqBody);
+    if(res) {
+      return res.data.updateStock;
     }
   }
 
@@ -98,6 +130,32 @@ class App extends React.Component {
     if(res) {
       const updatedLocation = res.data.location;
       this.setState({currentLocation: updatedLocation});
+    }
+  }
+
+  registerUser = async ({username, email, password})  => {
+    const reqBody = {
+      query: `
+        mutation {
+          createUser(
+            userInput: {
+              username: "${username}",
+              email: "${email}",
+              password: "${password}"
+            }
+          )
+          {
+            _id,
+            username,
+            email,
+            password
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      this.loginUser({email, password});
     }
   }
 
@@ -208,6 +266,17 @@ class App extends React.Component {
       )
     }
 
+    const locations = () => {
+      return (
+        checkAuth(
+          <Locations 
+            user={this.state.user}
+            currentLocation={this.state.currentLocation}
+          />
+        )
+      )
+    }
+
     const addInventory = () => {
       return (
         checkAuth(
@@ -243,26 +312,29 @@ class App extends React.Component {
 
     return (
       <div>
-        <Navigation 
-          token={this.state.token}
-          user={this.state.user}
-          classes={this.props.classes}
-          currentLocation={this.state.currentLocation}
-          chooseLocation={this.chooseLocation}
-        />
-        <Box>
+        <Box display="flex" justifyContent="flex-start">
+          <Navigation 
+            token={this.state.token}
+            user={this.state.user}
+            classes={this.props.classes}
+            currentLocation={this.state.currentLocation}
+            chooseLocation={this.chooseLocation}
+          />
+        </Box>
+        <Box display="flex" justifyContent="center">
           <Switch>
             <Route exact path='/' render={landing}/>
             <Route exact path='/login' render={login}/>
             <Route exact path='/register' render={register}/>
             <Route exact path='/dashboard' render={dashboard} />
+            <Route exact path='/locations' render={locations}/>
             <Route exact path='/inventory' render={inventory}/>
             <Route exact path='/inventory/add' render={addInventory}/>
             <Route exact path='/location/add' render={addLocation}/>
             <Route exact path='/checkout' render={checkout}/>
           </Switch>
         </Box>
-        <NavBottom />
+        {this.state.token ? <NavBottom /> : null}
       </div>
     );
   }

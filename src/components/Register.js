@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper } from '@material-ui/core';
+import { TextField, Button, Paper, Box, Typography } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 
-const Register = props => {
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(5, 20),
+    marginTop: theme.spacing(50)
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200
+  }
+}));
+
+function Register(props) {
+  const classes = useStyles();
 
   const [registerInput, setRegisterInput] = useState({
     username: '',
@@ -14,36 +28,13 @@ const Register = props => {
     setRegisterInput({...registerInput, [option]: event.target.value});
   }
 
-  const registerUser = async ({username, email, password})  => {
-    const reqBody = {
-      query: `
-        mutation {
-          createUser(
-            userInput: {
-              username: "${username}",
-              email: "${email}",
-              password: "${password}"
-            }
-          )
-          {
-            _id,
-            username,
-            email,
-            password
-          }
-        }
-      `
-    };
-    const res = await this.fetchApi(reqBody);
-    if(res) {
-      props.loginUser({email, password});
-    }
-  }
-
   return (
     <div>
-      <Paper>
-        <form noValidate autoComplete="off">
+      <Paper className={classes.root}>
+        <Typography variant="h5" component="h3" align="center">
+          Register
+        </Typography>
+        <Box>
           <TextField
             onChange={handleRegisterInput('username')}
             id="outlined-username-input"
@@ -54,6 +45,8 @@ const Register = props => {
             margin="normal"
             variant="outlined"
           />
+        </Box>
+        <Box>
           <TextField
             onChange={handleRegisterInput('email')}
             id="outlined-email-input"
@@ -64,6 +57,8 @@ const Register = props => {
             margin="normal"
             variant="outlined"
           />
+        </Box>
+        <Box>
           <TextField
             onChange={handleRegisterInput('password')}
             id="outlined-password-input"
@@ -74,9 +69,11 @@ const Register = props => {
             margin="normal"
             variant="outlined"
           />
-          <Button onClick={() => registerUser(registerInput)}>Register</Button>
+        </Box>
+        <Box>
+          <Button onClick={() => props.registerUser(registerInput)}>Register</Button>
           <Button onClick={() => props.history.push("/")}>Cancel</Button>
-        </form>
+        </Box>
       </Paper>
     </div>
   )

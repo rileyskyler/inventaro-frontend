@@ -11,19 +11,62 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import Box from '@material-ui/core/Box';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withRouter } from 'react-router-dom';
+import InputBase from '@material-ui/core/InputBase';
+import BarcodeIcon from '@material-ui/icons/ViewWeek';
+import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing(3),
+    padding: theme.spacing(2),
+    marginTop: theme.spacing(25),
+    marginBottom: theme.spacing(10),
     overflowX: 'auto',
   },
   table: {
-    minWidth: 700,
+    width: theme.spacing(85),
   },
-}));
+  section: {
+    margin: theme.spacing(1)
+  },
+  inputRoot: {
+    width: '100%',
+    padding: theme.spacing(2),
+    marginTop: theme.spacing(10),
+    overflowX: 'auto',
+    position: 'fixed',
+    left: 0
+  },
+  input: {
+    marginLeft: 8,
+    flex: 1,
+    fontSize: '40px',
+    textAlign: 'center'
+  },
+  iconButton: {
+    padding: 10,
+    height: '100%'
+  },
+  divider: {
+    width: 1,
+    height: 28,
+    margin: 4,
+  },
+  purchase: {
+    padding: theme.spacing(3),
+    marginTop: theme.spacing(5)
+  },
+  payButton: {
+    margin: theme.spacing(5)
+  }
+}))
+
 
 
 function priceFormat(price) {
@@ -46,7 +89,6 @@ const Prompt = props => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-
           <Button onClick={props.handleClose} color="primary">
             Add Manually
           </Button>
@@ -65,6 +107,7 @@ const Prompt = props => {
 
 
 const Checkout = props => {
+
   const [upcInput, setUpcInput] = useState('');
   const [cart, setCart] = useState([]);
   const [prompts, togglePrompts] = useState({
@@ -72,10 +115,6 @@ const Checkout = props => {
   })
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
-
-  useEffect(() => {
-    console.log(props)
-  }, []);
 
   const togglePrompt = (prompt) => {
     switch (prompt) {
@@ -90,7 +129,7 @@ const Checkout = props => {
     if (upc.length === 12) {
       const stock = props.currentLocation.inventory.find(stock => stock.item.upc === upc);
       if(stock) {
-        addToCheckout(stock);
+        addToCart(stock);
         setUpcInput('');
       } else {
         togglePrompt('NO_STOCK')
@@ -98,7 +137,7 @@ const Checkout = props => {
     }
   }
 
-  const addToCheckout = (stock) => {
+  const addToCart = (stock) => {
     let cart = props.cart;
     const productIndex = cart.findIndex(product => stock.item.upc === product.upc);
     if(productIndex > -1) {
@@ -110,6 +149,7 @@ const Checkout = props => {
           ...cart,
           {
             title: stock.item.title,
+            brand: stock.item.brand,
             price: stock.price,
             quantity: 1,
             upc: stock.item.upc
@@ -151,6 +191,7 @@ const Checkout = props => {
         break;
     }
   }
+  
 
   let subtotal = 0, taxes = 0, total = 0;
   if(props.cart.length) {
@@ -159,64 +200,72 @@ const Checkout = props => {
     total = subtotal + taxes;
   }
 
-  const upcInputField = () => {
-    return (
-      <TextField
-        onChange={handleUpc()}
-        id="upc"
-        label="upc"
-        type="text"
-        name="upc"
-        variant="outlined"
-        autoComplete="text"
-        margin="normal"
-        autoFocus
-        value={upcInput}
-        style={{marginLeft: '10%', marginBottom: '5%'}}
-      />
-    )
- }
-
-  if(true) {
+  if(props.cart.length) {
     return (
       <div>
-        <Paper
-          style={{
-            width: '100%',
-            position: 'fixed',
-            top: '10%',
-          }}
-        >
-          {upcInputField()}
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" >Product</TableCell>
-                  <TableCell align="center">Quantity</TableCell>
-                  <TableCell align="right">Price</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {
-                  props.cart.map((product, i) => (
-                    <TableRow key={product.title}>
-                      <TableCell>
-                        {
-                          product.title.length >= 50
-                          ? product.title.slice(0, 50) + '...'
-                          : product.title
-                        }
-                      </TableCell>
-                      <TableCell align="center">
-                        <div onClick={() => adjustProductQuantity(i, '+')}> + </div>
+        <Paper className={classes.inputRoot}>
+          <IconButton className={classes.iconButton}>
+            <BarcodeIcon/>
+          </IconButton>
+          <InputBase 
+            onChange={handleUpc()}
+            id="upc"
+            label="upc"
+            type="text"
+            name="upc"
+            variant="outlined"
+            autoComplete="text"
+            margin="normal"
+            position="fixed"
+            placeholder="UPC"
+            autoFocus
+            value={upcInput}
+            className={classes.input}
+          />
+        </Paper>
+        <Paper className={classes.root}>
+          {
+            props.cart
+            ?
+            <Box>
+              <Table>
+                <TableHead >
+                  <TableCell>Product</TableCell>
+                  <TableCell>Brand</TableCell>
+                  <TableCell>Quantity</TableCell>
+                  <TableCell>Price</TableCell>
+                </TableHead>
+                <TableBody>
+                  {
+                    props.cart.map((product, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          {
+                            product.title.length >= 40
+                            ? product.title.slice(0, 40) + '...'
+                            : product.title
+                          }
+                        </TableCell>
+                        <TableCell>{product.brand}</TableCell>
+                        <TableCell>
+                          <RemoveIcon 
+                            style={{fontSize: 15, marginRight: '5'}} 
+                            onClick={() => adjustProductQuantity(i, '-')}
+                          />
                           {product.quantity}
-                        <div onClick={() => adjustProductQuantity(i, '-')}> - </div>
-                      </TableCell>
-                      <TableCell align="right">{priceFormat(product.price)}</TableCell>
-                    </TableRow>
-                  ))
-                  
-                }
+                          <AddIcon 
+                            style={{fontSize: 15, marginLeft: '5'}}
+                            onClick={() => adjustProductQuantity(i, '+')}
+                          />
+                          </TableCell>
+                        <TableCell>{product.price}</TableCell>
+                      </TableRow>
+                    ))  
+                  }
+                </TableBody>
+              </Table>
+              <Table className={classes.purchase}>
+              <TableBody>
                 <TableRow>
                   <TableCell rowSpan={3} />
                   <TableCell colSpan={2}>Subtotal</TableCell>
@@ -230,9 +279,30 @@ const Checkout = props => {
                 <TableRow>
                   <TableCell colSpan={2}>Total</TableCell>
                   <TableCell align="right">{priceFormat(total)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            <Box align="center">
+              <Button
+                variant="outlined"
+                color="secondary"
+                className={classes.payButton}
+                onChange={() => props.updateCart([])}
+              >
+                Pay {priceFormat(total)}
+              </Button>
+              <Button
+                variant="outlined"
+                className={classes.payButton}
+                onChange={() => props.updateCart([])}
+              >
+                Cancel
+              </Button>
+            </Box>
+            </Box>
+            :
+            <Box>There are no items in your cart.</Box>
+          }
           </Paper>
           <Prompt open={open} handleAddInventory={handleAddInventory} handleClose={handleClose} />
       </div>
@@ -240,7 +310,6 @@ const Checkout = props => {
   } else {
     return (
       <div>
-        {upcInputField()}
         <div>Cart is empty.</div>
       </div>)
   } 
