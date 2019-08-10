@@ -39,6 +39,7 @@ class App extends React.Component {
     this.chooseLocation = this.chooseLocation.bind(this);
     this.updateInventory = this.updateInventory.bind(this);
     this.updateCart = this.updateCart.bind(this);
+    this.getUser = this.getUser.bind(this);
   }
 
   async componentDidMount() {
@@ -47,9 +48,8 @@ class App extends React.Component {
       //for development
       await this.chooseLocation(this.state.user.locations[0]);
       this.props.history.push({
-        pathname: '/inventory'
+        pathname: '/location'
       });
-      //
     }
   }
 
@@ -209,7 +209,6 @@ class App extends React.Component {
             user={this.state.user}
             cart={this.state.cart}
             updateCart={this.updateCart}
-            addLocation={this.addLocation}
             currentLocation={this.state.currentLocation}
           />
         )
@@ -221,7 +220,6 @@ class App extends React.Component {
         checkAuth(
           <Dashboard
             user={this.state.user}
-            addLocation={this.addLocation}
             token={this.state.token}
           />
         )
@@ -244,6 +242,7 @@ class App extends React.Component {
           <Locations 
             user={this.state.user}
             currentLocation={this.state.currentLocation}
+            chooseLocation={this.chooseLocation}
           />
         )
       )
@@ -270,6 +269,7 @@ class App extends React.Component {
           fetchApi={this.fetchApi}
           user={this.state.user}
           currentLocation={this.state.currentLocation}
+          getUser={this.getUser}
         />
       )
     }

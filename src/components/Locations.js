@@ -53,11 +53,19 @@ function Locations(props) {
   return (
     <List component="nav" className={classes.list} aria-label="contacts">
       <Box align="center">
-        <Button variant="outlined" size="small" className={classes.buttonSpacing}>
+        <Button
+          variant="outlined"
+          size="small" className={classes.buttonSpacing}
+          onClick={() => props.history.push('location/add')}
+        >
           <AddCircleIcon className={classes.extendedIcon} />
           Add Location
         </Button>
-        <Button variant="outlined" size="small" className={classes.buttonSpacing}>
+        <Button
+          variant="outlined"
+          size="small" className={classes.buttonSpacing}
+          onClick={() => props.history.push('location/join')}
+        >
           <AddCircleIcon className={classes.extendedIcon} />
           Join Location
         </Button>
@@ -77,11 +85,11 @@ function Locations(props) {
       {
         props.user.locations.filter(({ title }) => title !== props.currentLocation.title).map(location => (
           <ListItem button onClick={() =>  props.chooseLocation(location)}>
-          <ListItemIcon>
-            <CheckCircleOutlineIcon />
-          </ListItemIcon>
-          <ListItemText primary={location.title} />
-        </ListItem>
+            <ListItemIcon>
+              <CheckCircleOutlineIcon />
+            </ListItemIcon>
+            <ListItemText primary={location.title} />
+          </ListItem>
         ))
       }
     </List>

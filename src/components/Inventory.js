@@ -18,6 +18,7 @@ import { withRouter } from 'react-router-dom';
 import EditIcon from '@material-ui/icons/Edit';
 import SearchIcon from '@material-ui/icons/Search';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
+import BarcodeIcon from '@material-ui/icons/ViewWeek';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -56,18 +57,16 @@ const InventoryList = props => {
 }
 
 const Inventory = props => {
-
-
-  const [searchInput, setSearchInput] = useState('');
-
+  
   const classes = useStyles();
+  
+  const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
     if(props.location.params) {
       setSearchInput(props.location.params.searchInput)
     }
   }, []);
-
 
   const handleSearch = option => event => {
     setSearchInput(event.target.value);
@@ -91,21 +90,26 @@ const Inventory = props => {
           <Box align="center">
             <TextField
               className={classes.buttonSpacing}
-
+              placeholder="UPC"
               id="search-field"
               onChange={handleSearch()}
               value={searchInput}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon />
+                    <BarcodeIcon/>
                   </InputAdornment>
                 ),
               }}
             />
-            <Button variant="outlined" size="small" className={classes.buttonSpacing}>
+            <Button
+              variant="outlined"
+              size="small"
+              className={classes.buttonSpacing}
+              onClick={() =>  props.history.push('/inventory/add')}
+            >
               <AddCircleIcon className={classes.extendedIcon} />
-              Add Location
+              Add Inventory
             </Button>
           </Box>
             <Table className={classes.table}>

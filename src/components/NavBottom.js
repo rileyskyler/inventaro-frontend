@@ -23,17 +23,20 @@ const useStyles = makeStyles({
 const NavBottom = props => {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
-
+  const locations = ['/inventory', '/checkout', '/locations', '/account'];
+  
   const handleSetValue = (newValue) => {
     setValue(newValue)
-    const locations = ['inventory', 'checkout', 'locations', 'account'];
-    props.history.push(`/${locations[newValue]}`)
+    props.history.push(locations[newValue])
+  }
 
+  const getValue = () => {
+    return locations.findIndex(i => i === props.location.pathname)
   }
 
   return (
     <BottomNavigation
-      value={value}
+      value={getValue()}
       onChange={(event, newValue) => {
         handleSetValue(newValue);
       }}

@@ -1,7 +1,24 @@
 import React, { useState } from 'react';
-import { TextField, Button } from '@material-ui/core';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { TextField, Button, Paper, Box, Typography } from '@material-ui/core';
+import { withRouter } from 'react-router-dom';
 
-const AddLocation = props => {
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(5, 20),
+    marginTop: theme.spacing(50)
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200
+  }
+}));
+
+function AddLocation(props) {
+  console.log(props)
+  const classes = useStyles();
+
   const [locationInput, setLocationInput] = useState({
     title: ''
   });
@@ -10,17 +27,17 @@ const AddLocation = props => {
     setLocationInput({ ...locationInput, [option]: event.target.value });
   }
 
-  const addLocation = async ({title}) => {
+  const addLocation = async () => {
     const reqBody = {
       query: `
         mutation {
-          createLocation(locationInput: {title: "${title}"}) {
+          createLocation(locationInput: {title: "${locationInput.title}"}) {
             title
           }
         }
       `
     };
-    const res = await this.fetchApi(reqBody);
+    const res = await props.fetchApi(reqBody);
     if(res) {
       props.getUser();
     }
@@ -28,7 +45,29 @@ const AddLocation = props => {
 
   return (
     <div>
-      <h3>Add Location</h3>
+      <Paper className={classes.root}>
+        <Typography variant="h5" component="h3" align="center">
+          Create Location
+        </Typography>
+        <Box>
+          <TextField
+            onChange={handleLocationInput('title')}
+            id="title"
+            label="title"
+            type="text"
+            name="Add Location"
+            autoComplete="text"
+            margin="normal"
+            variant="outlined"
+            value={locationInput.title}
+          />
+        </Box>
+        <Box>
+          <Button onClick={() => addLocation(locationInput)}>Register</Button>
+          <Button onClick={() => props.history.goBack()}>Cancel</Button>
+        </Box>
+      </Paper>
+      {/* <h3>Add Location</h3>
       <form noValidate autoComplete="off">
         <TextField
           onChange={handleLocationInput('title')}
@@ -42,9 +81,9 @@ const AddLocation = props => {
           value={locationInput.title}
         />
         <Button onClick={() => props.addLocation(locationInput)}>Login</Button>
-      </form>
+      </form> */}
     </div>
   )
 }
 
-export default AddLocation
+export default withRouter(AddLocation);
