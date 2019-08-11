@@ -61,7 +61,11 @@ function Navbar(props) {
     <div className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          <Typography variant="h6" className={classes.title}>
+          <Typography
+            variant="h6"
+            className={classes.title}
+            onClick={() => props.history.push('/')}
+          >
             Inventaro
           </Typography>
           <ButtonChoice

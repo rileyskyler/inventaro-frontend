@@ -39,7 +39,7 @@ const AddInventory = props => {
   const [currentStock, setCurrentStock] = useState({})
 
   const [inventoryInput, setInventoryInput] = useState({
-    upc:'096619846016',
+    upc:'',
     price: '',
     quantity: '',
     title: '',
@@ -92,15 +92,15 @@ const AddInventory = props => {
   }, [inventoryInput.upc])
 
   const findProduct = async () => {
-    const stock = props.currentLocation.inventory.find(stock => stock.item.upc === inventoryInput.upc);
+    let stock = props.currentLocation.inventory.find(stock => stock.item.upc === inventoryInput.upc);
     if(stock) {
+      stock = { ...stock, price: parseFloat(stock.price).toFixed(2) };
       setCurrentStock(stock);
       setInventoryInput({
         ...inventoryInput,
         title: stock.item.title,
-        price: parseInt(stock.price).toFixed(2),
+        price: stock.price,
         quantity: stock.quantity,
-        originalQuantity: stock.quantity,
         stockId: stock._id
       });
       setMode('UPDATE_STOCK');
@@ -184,13 +184,14 @@ const AddInventory = props => {
             }
           )
           {
+            _id
+            price
+            quantity
             item {
               title
               upc
               brand
             }
-            price,
-            quantity
           }
         }
       `
@@ -248,7 +249,6 @@ const AddInventory = props => {
     }
     if(mode === 'UPDATE_STOCK') {
       const updatedStock = await updateStock();
-      console.log(updatedStock)
       let stockIndex
       if(updatedStock) {
         stockIndex = inventory.findIndex(stock => stock.item.upc === updatedStock.item.upc);
@@ -315,9 +315,10 @@ const AddInventory = props => {
       return (
         <List>
           {
-            productSuggestions[prop].slice(0,2).map(suggestion => {
+            productSuggestions[prop].slice(0,2).map((suggestion, i) => {
             return (
                 <ListItem
+                  key={i}
                   button
                   onClick={() => handleSuggestionSelection(prop, suggestion)}
                   display="block"
@@ -377,7 +378,7 @@ const AddInventory = props => {
     else if (inventoryInput.title) {
       return (
         <Card className={classes.staticInfo}>
-          <Typography variant="h7" align="center">
+          <Typography variant="h6" align="center">
             {inventoryInput.title}
           </Typography>
         </Card>

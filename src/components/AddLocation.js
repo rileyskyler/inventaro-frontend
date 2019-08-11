@@ -24,7 +24,7 @@ function AddLocation(props) {
   });
 
   const handleLocationInput = option => event => {
-    setLocationInput({ ...locationInput, [option]: event.target.value });
+    setLocationInput({ ...locationInput, [option]: event.target.value.toUpperCase() });
   }
 
   const addLocation = async () => {

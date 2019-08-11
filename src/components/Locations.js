@@ -46,6 +46,9 @@ const useStyles = makeStyles(theme => ({
   },
   buttonSpacing: {
     margin: theme.spacing(5),
+  },
+  emptyDialog: {
+    padding: theme.spacing(3)
   }
 }));
 
@@ -91,7 +94,7 @@ function Locations(props) {
       )
     } else {
       return (
-        <Paper>
+        <Paper className={classes.emptyDialog}>
           <Typography>
             Please create or join a location.
           </Typography>

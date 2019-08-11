@@ -1,12 +1,12 @@
 import React from 'react';
 import Navigation from './components/Navbar';
 import Landing from './components/Landing';
-import Dashboard from './components/Dashboard';
 import Inventory from './components/Inventory'
 import AddInventory from './components/AddInventory';
 import AddLocation from './components/AddLocation';
 import Login from './components/Login';
 import Register from './components/Register';
+import Account from './components/Account';
 import Checkout from './components/Checkout';
 import Locations from './components/Locations';
 import NavBottom from './components/NavBottom';
@@ -29,7 +29,6 @@ class App extends React.Component {
     
     this.state = {
       user: null,
-      isAuth: false,
       token: '',
       currentLocation: null,
       cart: []
@@ -41,6 +40,7 @@ class App extends React.Component {
     this.updateInventory = this.updateInventory.bind(this);
     this.updateCart = this.updateCart.bind(this);
     this.getUser = this.getUser.bind(this);
+    this.logoutUser = this.logoutUser.bind(this);
   }
 
   async componentDidMount() {
@@ -48,10 +48,10 @@ class App extends React.Component {
       await this.getUser();
       //for development
       await this.chooseLocation(this.state.user.locations[0]);
-      this.props.history.push({
-        pathname: '/'
-      });
     }
+    this.props.history.push({
+      pathname: '/register'
+    });
   }
 
   async fetchApi(reqBody) {
@@ -104,6 +104,11 @@ class App extends React.Component {
       const updatedLocation = res.data.location;
       this.setState({currentLocation: updatedLocation});
     }
+  }
+
+  logoutUser() {
+    this.setState({user: null, currentLocation: null, token: null});
+    this.props.history.push('/')
   }
 
   registerUser = async ({username, email, password})  => {
@@ -175,7 +180,7 @@ class App extends React.Component {
       const token = res.data.login.token;
       await this.setState({ token });
       await this.getUser();
-      this.props.history.push('/dashboard');
+      this.props.history.push('/locations');
     }
   }
 
@@ -211,17 +216,6 @@ class App extends React.Component {
             cart={this.state.cart}
             updateCart={this.updateCart}
             currentLocation={this.state.currentLocation}
-          />
-        )
-      )
-    }
-
-    const dashboard = () => {
-      return (
-        checkAuth(
-          <Dashboard
-            user={this.state.user}
-            token={this.state.token}
           />
         )
       )
@@ -275,6 +269,15 @@ class App extends React.Component {
       )
     }
 
+    const account = () => {
+      return checkAuth(
+        <Account
+          logoutUser={this.logoutUser}
+          user={this.state.user}
+        />
+      )
+    }
+
     const joinLocation = () => {
       return checkAuth(
         <JoinLocation 
@@ -310,13 +313,13 @@ class App extends React.Component {
             <Route exact path='/' render={landing}/>
             <Route exact path='/login' render={login}/>
             <Route exact path='/register' render={register}/>
-            <Route exact path='/dashboard' render={dashboard} />
             <Route exact path='/locations' render={locations}/>
             <Route exact path='/inventory' render={inventory}/>
             <Route exact path='/inventory/add' render={addInventory}/>
             <Route exact path='/location/add' render={addLocation}/>
             <Route exact path='/location/join' render={joinLocation}/>
             <Route exact path='/checkout' render={checkout}/>
+            <Route exact path='/account' render={account}/>
           </Switch>
         </Box>
         {this.state.token ? <NavBottom /> : null}

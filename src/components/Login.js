@@ -6,7 +6,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(5, 10),
-    marginTop: theme.spacing(50)
+    marginTop: theme.spacing(40)
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -19,8 +19,8 @@ function Login(props) {
   const classes = useStyles();
 
   const [loginInput, setLoginInput] = useState({
-    email: 'pasta',
-    password: '1'
+    email: '',
+    password: ''
   });
   
   
@@ -28,6 +28,11 @@ function Login(props) {
     setLoginInput({...loginInput, [option]: event.target.value});
   }
   
+  const handleSubmit = event => {
+    if(event.key === 'Enter') {
+      props.loginUser(loginInput)
+    }
+  }
 
   return (    
     <div>
@@ -52,6 +57,7 @@ function Login(props) {
         <Box>
           <TextField
             onChange={handleLoginInput('password')}
+            onKeyPress={handleSubmit}
             className={classes.textField}
             id="password"
             label="Password"

@@ -24,7 +24,7 @@ function JoinLocation(props) {
   });
 
   const handleLocationInput = option => event => {
-    setLocationInput({ ...locationInput, [option]: event.target.value });
+    setLocationInput({ ...locationInput, [option]: event.target.value.toUpperCase() });
   }
 
   const joinLocation = async () => {
