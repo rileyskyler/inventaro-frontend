@@ -112,7 +112,6 @@ const root = {
     try {
       const itemExists = await Item.findOne({upc: args.itemInput.upc});
       if(itemExists) {
-        console.log('itemExists')
         throw new Error("Item already exists!")
       }
       else {
@@ -135,8 +134,16 @@ const root = {
   createStock: async (args, req) => {
     try {
       const location = await Location.findById(args.stockInput.locationId);
-      if(!location) {
+      if(!location ) {
         throw new Error("Location does not exist!");
+      }
+      const stockExists = location.inventory.indexOf( async (stockId) => {
+        const itemId = (await Stock.findById(stockId)).item;
+        const upc = (await Item.findById(itemId)).upc;
+        return upc === args.stockInput.upc;
+      })
+      if(stockExists > -1) {
+        throw new Error("Stock already exists!");
       }
       else {
         const user = await User.findById(req.userId);
@@ -149,22 +156,22 @@ const root = {
             throw new Error("Item with that UPC does not exist");
           }
           else {
+            const price =`${parseInt(args.stockInput.price).toFixed(2)}`
             const stock = new Stock({
-              price: args.stockInput.price,
+              price,
               quantity: args.stockInput.quantity,
               item,
               location
             });
             const res = await stock.save();
-
             location.inventory.push(stock);
             await location.save();
             return {
               ...res._doc,
               _id: res.id,
               location: {
-                ...item._doc,
-                _id: item.id
+                ...location._doc,
+                _id: location.id
               },
               item: {
                 ...item._doc,
@@ -180,31 +187,35 @@ const root = {
     }
   },
   updateStock: async (args, req) => {
+
     try {
-      const stock = await Stock.findById(args.updateStockInput.stockId);
-      console.log(stock)
+      let stock = await Stock.findById(args.updateStockInput.stockId);
       if(!stock) {
         throw new Error("Stock does not exist!");
       }
       else {
         const location = await Location.findById(stock.location);
-
         if(!location.users.includes(req.userId)) {
           throw new Error("User does not have permission to edit this stock!");
         }
         else {
           const item = await Item.findById(stock.item);
-          console.log('item')
-          stock.price = args.updateStockInput.price;
-          stock.quantity = args.updateStockInput.quantity;
-          
-          // console.log(stock)
+          stock.price = args.updateStockInput.price,
+          stock.quantity = args.updateStockInput.quantity 
           const res = await stock.save()
-          console.log('res',res)
-          return {
-            price: stock.price,
-            quantity: stock.quantity,
-            item
+          if(res) {
+            return {
+              ...res._doc,
+              _id: res.id,
+              item: {
+                ...item._doc,
+                _id: item.id
+              },
+              location: {
+                ...location._doc,
+                _id: location.id
+              },
+            }
           }
         }
       }
@@ -239,9 +250,36 @@ const root = {
       throw err
     }
   },
+  joinLocation: async (args, req) => {
+    try {
+      const location = await Location.findOne({title: args.joinLocationInput.title});
+      if(!location) {
+        throw new Error("Location does not exist!");
+      }
+      else {
+        const user = await User.findById(req.userId);
+        if(user.locations.includes(location._id)) {
+          throw new Error("User has already joined this location!")
+        }
+        location.users.push(user);
+        user.locations.push(location);
+        const res = await location.save();
+        await user.save();
+        return {
+          ...res._doc,
+          _id: res.id,
+          users: locationUsers.bind(this, res.users)
+        }
+      }
+    }
+    catch (err) {
+      throw err
+    }
+  },
   createUser: async (args) => {
     try {    
       const userExists = await User.findOne({email: args.userInput.email});
+      console.log(userExists)
       if(userExists) {
         throw new Error("User already exists!");
       } 
@@ -261,8 +299,10 @@ const root = {
     }
   },
   login: async (args) => {
+    console.log(args)
     try {
       const userToLogin = await User.findOne({email: args.loginInput.email});
+      console.log(userToLogin)
       if(!userToLogin) {
         throw new Error('User not found!');
       }
@@ -295,10 +335,10 @@ const root = {
       }
       else if (data.code === 'OK') {
         data.items.forEach(item => {
-          brandSuggestions = [ ...new Set([ ...brandSuggestions, item.brand ]) ];
+          brandSuggestions = [ ...new Set([ ...brandSuggestions, item.brand.toUpperCase() ]) ];
           titleSuggestions = [ ...new Set([
-            ...titleSuggestions, item.title,
-            ...(item.offers || []).map(({ title }) =>  title)
+            ...titleSuggestions, item.title.toUpperCase(),
+            ...(item.offers || []).map(({ title }) =>  title.toUpperCase())
           ])];
           priceSuggestions = [ ...new Set([
               ...priceSuggestions,

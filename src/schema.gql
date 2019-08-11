@@ -33,6 +33,10 @@ input LocationInput {
     title: String!
 }
 
+input JoinLocationInput {
+    title: String!
+}
+
 input ItemInput {
     upc: String!
     title: String!
@@ -87,6 +91,7 @@ type RootQuery {
 type RootMutation {
     createUser(userInput: UserInput!) : User!
     createLocation(locationInput: LocationInput!) : Location!
+    joinLocation(joinLocationInput: JoinLocationInput!) : Location!
     createItem(itemInput: ItemInput!) : Item!
     createStock(stockInput: StockInput!): Stock!
     updateStock(updateStockInput: UpdateStockInput) : Stock!
