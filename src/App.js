@@ -13,6 +13,7 @@ import NavBottom from './components/NavBottom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box } from '@material-ui/core';
+import JoinLocation from './components/JoinLocation';
 
 const styles = makeStyles(theme => ({
   root: {
@@ -29,7 +30,7 @@ class App extends React.Component {
     this.state = {
       user: null,
       isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjUyOTE1NjcsImV4cCI6MTU2NTU1MDc2N30.Joj3cg6Mnt27HnClr7KtLUA6OjVSKRh9UMASbnWmrcY',
+      token: '',
       currentLocation: null,
       cart: []
     }
@@ -48,7 +49,7 @@ class App extends React.Component {
       //for development
       await this.chooseLocation(this.state.user.locations[0]);
       this.props.history.push({
-        pathname: '/location'
+        pathname: '/'
       });
     }
   }
@@ -161,7 +162,7 @@ class App extends React.Component {
         query{
           login(
             loginInput:{ 
-              email:"${email}",
+              email:"${email}"
               password: "${password}"
             }
           )
@@ -274,6 +275,17 @@ class App extends React.Component {
       )
     }
 
+    const joinLocation = () => {
+      return checkAuth(
+        <JoinLocation 
+          fetchApi={this.fetchApi}
+          user={this.state.user}
+          currentLocation={this.state.currentLocation}
+          getUser={this.getUser}
+        />
+      )
+    }
+
     const checkAuth = (componentToRender) => {
       if(this.state.token && this.state.user){
         return componentToRender
@@ -303,6 +315,7 @@ class App extends React.Component {
             <Route exact path='/inventory' render={inventory}/>
             <Route exact path='/inventory/add' render={addInventory}/>
             <Route exact path='/location/add' render={addLocation}/>
+            <Route exact path='/location/join' render={joinLocation}/>
             <Route exact path='/checkout' render={checkout}/>
           </Switch>
         </Box>

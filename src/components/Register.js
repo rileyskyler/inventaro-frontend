@@ -19,9 +19,9 @@ function Register(props) {
   const classes = useStyles();
 
   const [registerInput, setRegisterInput] = useState({
-    username: '',
-    email: '',
-    password: ''
+    username: 'cheese',
+    email: 'cheese',
+    password: 'cheese'
   });
   
   const handleRegisterInput = option => event => {
@@ -44,6 +44,7 @@ function Register(props) {
             autoComplete="username"
             margin="normal"
             variant="outlined"
+            value={registerInput.username}
           />
         </Box>
         <Box>
@@ -56,6 +57,7 @@ function Register(props) {
             autoComplete="email"
             margin="normal"
             variant="outlined"
+            value={registerInput.email}
           />
         </Box>
         <Box>
@@ -68,6 +70,7 @@ function Register(props) {
             autoComplete="password"
             margin="normal"
             variant="outlined"
+            value={registerInput.password}
           />
         </Box>
         <Box>

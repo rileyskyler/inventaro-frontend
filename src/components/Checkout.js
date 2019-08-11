@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, ButtonGroup } from '@material-ui/core';
+import { TextField, Button, ButtonGroup, Typography } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -199,34 +199,35 @@ const Checkout = props => {
     total = subtotal + taxes;
   }
 
-  if(true) {
-    return (
-      <div>
-        <Paper className={classes.inputRoot}>
-          <IconButton className={classes.iconButton}>
-            <BarcodeIcon/>
-          </IconButton>
-          <InputBase 
-            onChange={handleUpc()}
-            id="upc"
-            label="upc"
-            type="text"
-            name="upc"
-            variant="outlined"
-            autoComplete="text"
-            margin="normal"
-            position="fixed"
-            placeholder="UPC"
-            autoFocus
-            value={upcInput}
-            className={classes.input}
-          />
-        </Paper>
-        <Paper className={classes.root}>
-          {
-            props.cart
-            ?
-            <Box>
+  return (
+    <div>
+      <Paper className={classes.inputRoot}>
+        <IconButton className={classes.iconButton}>
+          <BarcodeIcon/>
+        </IconButton>
+        <InputBase 
+          onChange={handleUpc()}
+          id="upc"
+          label="upc"
+          type="text"
+          name="upc"
+          variant="outlined"
+          autoComplete="text"
+          margin="normal"
+          position="fixed"
+          placeholder="UPC"
+          autoFocus
+          value={upcInput}
+          className={classes.input}
+        />
+      </Paper>
+      <Paper className={classes.root}>
+        <Box>
+        {
+          props.cart.length
+          ?
+          (
+            <>
               <Table>
                 <TableHead >
                   <TableCell>Product</TableCell>
@@ -298,20 +299,18 @@ const Checkout = props => {
                 Cancel
               </Button>
             </Box>
-            </Box>
-            :
-            <Box>There are no items in your cart.</Box>
-          }
-          </Paper>
-          <Prompt open={open} handleAddInventory={handleAddInventory} handleClose={handleClose} />
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <div>Cart is empty.</div>
-      </div>)
-  } 
+            </>
+          )
+          :
+          (
+            <Typography>Cart is empty.</Typography>
+          )
+        }
+        </Box>
+        </Paper>
+        <Prompt open={open} handleAddInventory={handleAddInventory} handleClose={handleClose} />
+    </div>
+  )
 }
 
 export default withRouter(Checkout);

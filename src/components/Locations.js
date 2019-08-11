@@ -27,8 +27,10 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(5, 20),
-    marginTop: theme.spacing(50)
+    width: '100%',
+    padding: theme.spacing(5),
+    marginTop: theme.spacing(5),
+    overflowX: 'auto',
   },
   list: {
     width: '100%',
@@ -50,8 +52,56 @@ const useStyles = makeStyles(theme => ({
 function Locations(props) {
   const classes = useStyles();
 
+  const getLocationList = () => {
+    if(props.user.locations.length){
+      return (
+        <List component="nav" aria-label="contacts">
+        {
+          props.currentLocation
+          ?
+          (
+            <>
+              <Typography>
+              Current Location
+              </Typography>
+              <ListItem button>
+                <ListItemIcon>
+                  <CheckCircleIcon />
+                </ListItemIcon>
+                <ListItemText primary={props.currentLocation.title} />
+              </ListItem>
+            </>
+          )
+          : <Box></Box>
+        }
+          <Typography>
+            Available Locations
+          </Typography>
+          {
+            props.user.locations.filter(({ title }) => title !== ((props.currentLocation || {}).title)).map((location, i) => (
+              <ListItem key={i} button onClick={() =>  props.chooseLocation(location)}>
+                <ListItemIcon>
+                  <CheckCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText primary={location.title} />
+              </ListItem>
+            ))
+          }
+        </List>
+      )
+    } else {
+      return (
+        <Paper>
+          <Typography>
+            Please create or join a location.
+          </Typography>
+        </Paper>
+      )
+    }
+  }
+ 
   return (
-    <List component="nav" className={classes.list} aria-label="contacts">
+    <Box className={classes.root}>
       <Box align="center">
         <Button
           variant="outlined"
@@ -69,31 +119,11 @@ function Locations(props) {
           <AddCircleIcon className={classes.extendedIcon} />
           Join Location
         </Button>
+        {getLocationList()}
       </Box>
-      <Typography>
-        Current Location
-      </Typography>
-      <ListItem button>
-        <ListItemIcon>
-          <CheckCircleIcon />
-        </ListItemIcon>
-        <ListItemText primary={props.currentLocation.title} />
-      </ListItem>
-      <Typography>
-        Available Locations
-      </Typography>
-      {
-        props.user.locations.filter(({ title }) => title !== props.currentLocation.title).map(location => (
-          <ListItem button onClick={() =>  props.chooseLocation(location)}>
-            <ListItemIcon>
-              <CheckCircleOutlineIcon />
-            </ListItemIcon>
-            <ListItemText primary={location.title} />
-          </ListItem>
-        ))
-      }
-    </List>
+    </Box>
   )
 }
+
 
 export default withRouter(Locations);

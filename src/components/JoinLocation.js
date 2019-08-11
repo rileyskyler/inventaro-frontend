@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function AddLocation(props) {
+function JoinLocation(props) {
 
   const classes = useStyles();
 
@@ -27,11 +27,11 @@ function AddLocation(props) {
     setLocationInput({ ...locationInput, [option]: event.target.value });
   }
 
-  const addLocation = async () => {
+  const joinLocation = async () => {
     const reqBody = {
       query: `
         mutation {
-          createLocation(locationInput: {title: "${locationInput.title}"}) {
+          joinLocation(joinLocationInput: {title: "${locationInput.title}"}) {
             title
           }
         }
@@ -48,7 +48,7 @@ function AddLocation(props) {
     <div>
       <Paper className={classes.root}>
         <Typography variant="h5" component="h3" align="center">
-          Create Location
+          Join Location
         </Typography>
         <Box>
           <TextField
@@ -63,8 +63,9 @@ function AddLocation(props) {
             value={locationInput.title}
           />
         </Box>
+          'Demo'
         <Box>
-          <Button onClick={() => addLocation(locationInput)}>Register</Button>
+          <Button onClick={() => joinLocation(locationInput)}>Join</Button>
           <Button onClick={() => props.history.goBack()}>Cancel</Button>
         </Box>
       </Paper>
@@ -72,4 +73,4 @@ function AddLocation(props) {
   )
 }
 
-export default withRouter(AddLocation);
+export default withRouter(JoinLocation);

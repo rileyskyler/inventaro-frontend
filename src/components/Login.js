@@ -19,8 +19,8 @@ function Login(props) {
   const classes = useStyles();
 
   const [loginInput, setLoginInput] = useState({
-    username: '',
-    password: ''
+    email: 'pasta',
+    password: '1'
   });
   
   
@@ -37,16 +37,16 @@ function Login(props) {
         </Typography>
         <Box>
           <TextField
-            onChange={handleLoginInput('username')}
+            onChange={handleLoginInput('email')}
             className={classes.textField}
-            id="username"
+            id="email"
             label="Username"
-            type="username"
-            name="username"
-            autoComplete="username"
+            type="email"
+            name="email"
+            autoComplete="email"
             margin="normal"
             variant="outlined"
-            value={loginInput.username}
+            value={loginInput.email}
           />
         </Box>
         <Box>

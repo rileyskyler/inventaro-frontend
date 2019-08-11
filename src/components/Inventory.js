@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, ButtonGroup } from '@material-ui/core';
+import { TextField, Button, ButtonGroup, Typography } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -22,7 +22,7 @@ import BarcodeIcon from '@material-ui/icons/ViewWeek';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
+    // width: '100%',
     marginTop: theme.spacing(12),
     marginBottom: theme.spacing(10)
   },
@@ -34,6 +34,10 @@ const useStyles = makeStyles(theme => ({
   },
   extendedIcon: {
     marginRight: theme.spacing(2),
+  },
+  error: {
+    marginTop: theme.spacing(50),
+    padding: theme.spacing(10)
   }
 }));
 
@@ -47,7 +51,7 @@ const InventoryList = props => {
         </TableCell>
         <TableCell align="center">{stock.item.title}</TableCell>
         <TableCell align="center">{stock.item.brand}</TableCell>
-        <TableCell align="center">{stock.price}</TableCell>
+        <TableCell align="center">{parseFloat(stock.price).toFixed(2)}</TableCell>
         <TableCell align="right">{stock.quantity}</TableCell>
         <TableCell align="right">{stock.item.upc}</TableCell>
       </TableRow>
@@ -83,6 +87,40 @@ const Inventory = props => {
     })
   }
 
+  const getInventoryTable = () => {
+    if(props.currentLocation.inventory.length) {
+      return (
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">Product</TableCell>
+              <TableCell align="center">Brand</TableCell>
+              <TableCell align="center">Stock</TableCell>
+              <TableCell align="right">Price</TableCell>
+              <TableCell align="right">UPC</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <InventoryList
+              inventory={props.currentLocation.inventory}
+              searchInput={searchInput}
+              handleEditClick={handleEditClick}
+            />
+          </TableBody>
+        </Table>
+      )
+    } else {
+      return (
+        <Box align="center">
+          <Typography>
+            There is no inventory at this location.
+          </Typography>
+        </Box>
+      )
+    }
+  }
+
   if(props.currentLocation) {
     return (
       <div>
@@ -112,27 +150,24 @@ const Inventory = props => {
               Add Inventory
             </Button>
           </Box>
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center"></TableCell>
-                  <TableCell align="center">Product</TableCell>
-                  <TableCell align="center">Brand</TableCell>
-                  <TableCell align="center">Stock</TableCell>
-                  <TableCell align="right">Price</TableCell>
-                  <TableCell align="right">UPC</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <InventoryList
-                  inventory={props.currentLocation.inventory}
-                  searchInput={searchInput}
-                  handleEditClick={handleEditClick}
-                />
-              </TableBody>
-            </Table>
+            {getInventoryTable()}
           </Paper>
         </div>
+    )
+  } else {
+    return (
+      <Paper className={classes.error} align="center">
+        <Typography>
+          You have not selected a location.
+        </Typography>
+        <Button
+          variant="outlined"
+          className={classes.buttonSpacing}
+          onClick={() => props.history.push('/locations')}
+        >
+          Choose Location
+        </Button>
+      </Paper>
     )
   }
 }
