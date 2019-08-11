@@ -187,7 +187,6 @@ const root = {
     }
   },
   updateStock: async (args, req) => {
-
     try {
       let stock = await Stock.findById(args.updateStockInput.stockId);
       if(!stock) {
@@ -225,16 +224,15 @@ const root = {
     }
   },
   createLocation: async (args, req) => {
+    const title = args.locationInput.title.toUpperCase();
     try {
-      const locationExists = await User.findOne({title: args.locationInput.title});
+      const locationExists = await Location.findOne({title});
       if(locationExists) {
         throw new Error("Location already exists!");
       }
       else {
         const user = await User.findById(req.userId);
-        const location = new Location({
-          title: args.locationInput.title
-        });
+        const location = new Location({title});
         location.users.push(user);
         user.locations.push(location);
         const res = await location.save();
@@ -251,8 +249,9 @@ const root = {
     }
   },
   joinLocation: async (args, req) => {
+    const title = args.locationInput.title.toUpperCase();
     try {
-      const location = await Location.findOne({title: args.joinLocationInput.title});
+      const location = await Location.findOne({title});
       if(!location) {
         throw new Error("Location does not exist!");
       }
@@ -279,7 +278,6 @@ const root = {
   createUser: async (args) => {
     try {    
       const userExists = await User.findOne({email: args.userInput.email});
-      console.log(userExists)
       if(userExists) {
         throw new Error("User already exists!");
       } 
@@ -299,10 +297,8 @@ const root = {
     }
   },
   login: async (args) => {
-    console.log(args)
     try {
       const userToLogin = await User.findOne({email: args.loginInput.email});
-      console.log(userToLogin)
       if(!userToLogin) {
         throw new Error('User not found!');
       }
