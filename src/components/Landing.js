@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import Marked from 'marked';
 import ReactMarkdown from 'react-markdown';
-import { TextField, Button, Paper, Box, Typography } from '@material-ui/core';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, ButtonGroup, Typography } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -13,13 +14,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
-import { withRouter } from 'react-router-dom';
 import InputBase from '@material-ui/core/InputBase';
 import BarcodeIcon from '@material-ui/icons/ViewWeek';
 import IconButton from '@material-ui/core/IconButton';
-import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
+import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -106,12 +106,10 @@ const Prompt = props => {
 
 
 const Checkout = props => {
-
   const [upcInput, setUpcInput] = useState('');
-  const [cart, setCart] = useState([]);
-  const [prompts, togglePrompts] = useState({
-    noStock: false
-  })
+  // const [prompts, togglePrompts] = useState({
+  //   noStock: false
+  // })
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
 
@@ -119,7 +117,11 @@ const Checkout = props => {
     switch (prompt) {
       case 'NO_STOCK':
         setOpen(true)
+        break;
+      default:
+        break;
     }
+
   }
 
   const handleUpc = option => event => {
@@ -158,10 +160,6 @@ const Checkout = props => {
     }
   }
 
-  function handleClickOpen() {
-    setOpen(true);
-  }
-
   const handleClose = () => {
     setUpcInput('')
     setOpen(false);
@@ -187,6 +185,8 @@ const Checkout = props => {
       case '-':
         cart[productIndex].quantity--;
         props.updateCart(cart);
+        break;
+      default:
         break;
     }
   }

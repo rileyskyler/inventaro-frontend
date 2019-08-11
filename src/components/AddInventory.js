@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, ButtonGroup, Paper, Typography } from '@material-ui/core';
-import { withRouter } from 'react-router-dom';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Typography from '@material-ui/core/Typography';
 import BarcodeIcon from '@material-ui/icons/ViewWeek';
 import Box from '@material-ui/core/Box';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Card from '@material-ui/core/Card';
+import { withRouter } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -62,7 +64,7 @@ const AddInventory = props => {
         setRedirect(redirect);
       }
     }
-  }, []);
+  }, [setInventoryInput]);
 
 
   const handleInput = property => event => {

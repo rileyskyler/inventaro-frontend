@@ -1,15 +1,11 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import RestoreIcon from '@material-ui/icons/Restore';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import AccountIcon from '@material-ui/icons/AccountCircle';
 import LocationIcon from '@material-ui/icons/Store';
-
+import { makeStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles({
@@ -22,11 +18,10 @@ const useStyles = makeStyles({
 
 const NavBottom = props => {
   const classes = useStyles();
-  const [value, setValue] = React.useState(0);
+  // const [value, setValue] = React.useState(0);
   const locations = ['/inventory', '/checkout', '/locations', '/account'];
   
   const handleSetValue = (newValue) => {
-    setValue(newValue)
     props.history.push(locations[newValue])
   }
 
