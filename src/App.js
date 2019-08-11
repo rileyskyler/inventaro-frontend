@@ -1,37 +1,35 @@
 import React from 'react';
-import Navigation from './components/Navigation';
+import Navigation from './components/Navbar';
 import Landing from './components/Landing';
-import Dashboard from './components/Dashboard';
+import Inventory from './components/Inventory'
 import AddInventory from './components/AddInventory';
 import AddLocation from './components/AddLocation';
 import Login from './components/Login';
 import Register from './components/Register';
+import Account from './components/Account';
 import Checkout from './components/Checkout';
+import Locations from './components/Locations';
+import NavBottom from './components/NavBottom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
+import Box from '@material-ui/core/Box';
+import JoinLocation from './components/JoinLocation';
 
 const styles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(3, 2),
-    flexGrow: 1
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1
+    height: '100vh',
+    width: '100vw'
   }
 }));
 
 class App extends React.Component {
   
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     
     this.state = {
       user: null,
-      isAuth: false,
-      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZDNkZjBkZjlkZDc0NzBiZGVhYTk2ZGEiLCJlbWFpbCI6ImEiLCJpYXQiOjE1NjQ3NjA0MDksImV4cCI6MTU2NTAxOTYwOX0.4_7xJizQCdSumuHV7TvnhEcHFut-OeMq-UF3ji0Nk-w',
+      token: '',
       currentLocation: null,
       cart: []
     }
@@ -41,18 +39,20 @@ class App extends React.Component {
     this.chooseLocation = this.chooseLocation.bind(this);
     this.updateInventory = this.updateInventory.bind(this);
     this.updateCart = this.updateCart.bind(this);
+    this.getUser = this.getUser.bind(this);
+    this.logoutUser = this.logoutUser.bind(this);
   }
 
-  async componentDidMount() {
-    if(this.state.token) {
-      await this.getUser()
-      //for development
-      await this.chooseLocation(this.state.user.locations[0])
-      this.props.history.push({
-        pathname: '/checkout'
-      })
-    }
-  }
+  // async componentDidMount() {
+  //   if(this.state.token) {
+  //     await this.getUser();
+  //     //for development
+  //     await this.chooseLocation(this.state.user.locations[0]);
+  //   }
+  //   this.props.history.push({
+  //     pathname: '/register'
+  //   });
+  // }
 
   async fetchApi(reqBody) {
     let headers = {
@@ -75,8 +75,10 @@ class App extends React.Component {
     }
   }
 
+  
+
   async chooseLocation(location) {
-    console.log(location)
+
     const reqBody = {
       query: `
         query {
@@ -90,6 +92,7 @@ class App extends React.Component {
               item {
                 title
                 upc
+                brand
               }
             }
           }
@@ -103,9 +106,40 @@ class App extends React.Component {
     }
   }
 
+  logoutUser() {
+    this.setState({user: null, currentLocation: null, token: null});
+    this.props.history.push('/')
+  }
+
+  registerUser = async ({username, email, password})  => {
+    const reqBody = {
+      query: `
+        mutation {
+          createUser(
+            userInput: {
+              username: "${username}",
+              email: "${email}",
+              password: "${password}"
+            }
+          )
+          {
+            _id,
+            username,
+            email,
+            password
+          }
+        }
+      `
+    };
+    const res = await this.fetchApi(reqBody);
+    if(res) {
+      this.loginUser({email, password});
+    }
+  }
+
   async updateInventory(inventory) {
     this.setState(({ currentLocation }) => {
-      return {currentLocation: {...currentLocation, inventory}};
+      return {currentLocation: { ...currentLocation, inventory }};
     })
   }
 
@@ -122,7 +156,7 @@ class App extends React.Component {
     const res = await this.fetchApi(reqBody);
     if(res) {
       const user = res.data.user;
-      this.setState({user});
+      this.setState({ user });
       return;
     }
   }
@@ -133,7 +167,7 @@ class App extends React.Component {
         query{
           login(
             loginInput:{ 
-              email:"${email}",
+              email:"${email}"
               password: "${password}"
             }
           )
@@ -144,15 +178,12 @@ class App extends React.Component {
     const res = await this.fetchApi(reqBody);
     if(res) {
       const token = res.data.login.token;
-
-      await this.setState({token});
+      await this.setState({ token });
       await this.getUser();
-      this.props.history.push('/dashboard');
+      this.props.history.push('/locations');
     }
   }
 
-
-  
   render() {
     
     const landing = () => {
@@ -184,20 +215,29 @@ class App extends React.Component {
             user={this.state.user}
             cart={this.state.cart}
             updateCart={this.updateCart}
-            addLocation={this.addLocation}
             currentLocation={this.state.currentLocation}
           />
         )
       )
     }
 
-    const dashboard = () => {
+    const inventory = () => {
       return (
         checkAuth(
-          <Dashboard
+          <Inventory 
+            currentLocation={this.state.currentLocation}
+          />
+        )
+      )
+    }
+
+    const locations = () => {
+      return (
+        checkAuth(
+          <Locations 
             user={this.state.user}
-            addLocation={this.addLocation}
-            token={this.state.token}
+            currentLocation={this.state.currentLocation}
+            chooseLocation={this.chooseLocation}
           />
         )
       )
@@ -211,6 +251,8 @@ class App extends React.Component {
             currentLocation={this.state.currentLocation}
             updateInventory={this.updateInventory}
             fetchApi={this.fetchApi}
+            cart={this.state.cart}
+            updateCart={this.updateCart}
           />
         )
       )
@@ -222,34 +264,65 @@ class App extends React.Component {
           fetchApi={this.fetchApi}
           user={this.state.user}
           currentLocation={this.state.currentLocation}
+          getUser={this.getUser}
         />
       )
     }
 
-    const checkAuth = (componentToRender) => (
-      (this.state.token && this.state.user)
-      ? componentToRender
-      : <Redirect to='/'/>
-    )
+    const account = () => {
+      return checkAuth(
+        <Account
+          logoutUser={this.logoutUser}
+          user={this.state.user}
+        />
+      )
+    }
+
+    const joinLocation = () => {
+      return checkAuth(
+        <JoinLocation 
+          fetchApi={this.fetchApi}
+          user={this.state.user}
+          currentLocation={this.state.currentLocation}
+          getUser={this.getUser}
+        />
+      )
+    }
+
+    const checkAuth = (componentToRender) => {
+      if(this.state.token && this.state.user){
+        return componentToRender
+      } else {
+        return <Redirect to='/'/>
+      }
+    }
 
     return (
       <div>
-        <Navigation 
-          token={this.state.token}
-          user={this.state.user}
-          classes={this.props.classes}
-          currentLocation={this.state.currentLocation}
-          chooseLocation={this.chooseLocation}
-        />
-        <Switch>
-          <Route exact path='/' render={landing}/>
-          <Route exact path='/login' render={login}/>
-          <Route exact path='/register' render={register}/>
-          <Route path='/dashboard' render={dashboard} />
-          <Route path='/add-inventory' render={addInventory}/>
-          <Route path='/add-location' render={addLocation}/>
-          <Route path='/checkout' render={checkout}/>
-        </Switch>
+        <Box display="flex" justifyContent="flex-start">
+          <Navigation 
+            token={this.state.token}
+            user={this.state.user}
+            classes={this.props.classes}
+            currentLocation={this.state.currentLocation}
+            chooseLocation={this.chooseLocation}
+          />
+        </Box>
+        <Box display="flex" justifyContent="center">
+          <Switch>
+            <Route exact path='/' render={landing}/>
+            <Route exact path='/login' render={login}/>
+            <Route exact path='/register' render={register}/>
+            <Route exact path='/locations' render={locations}/>
+            <Route exact path='/inventory' render={inventory}/>
+            <Route exact path='/inventory/add' render={addInventory}/>
+            <Route exact path='/location/add' render={addLocation}/>
+            <Route exact path='/location/join' render={joinLocation}/>
+            <Route exact path='/checkout' render={checkout}/>
+            <Route exact path='/account' render={account}/>
+          </Switch>
+        </Box>
+        {this.state.token ? <NavBottom /> : null}
       </div>
     );
   }

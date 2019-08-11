@@ -1,49 +1,100 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import Checkbox from '@material-ui/core/Checkbox';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-const Register = props => {
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(5, 20),
+    marginTop: theme.spacing(35)
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200
+  }
+}));
+
+function Register(props) {
+  const classes = useStyles();
 
   const [registerInput, setRegisterInput] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    termsOfUse: false
   });
   
+  const [termsOfUsePrompt, setTermsOfUsePrompt] = useState(false);
+
   const handleRegisterInput = option => event => {
     setRegisterInput({...registerInput, [option]: event.target.value});
   }
 
-  const registerUser = async ({username, email, password})  => {
-    const reqBody = {
-      query: `
-        mutation {
-          createUser(
-            userInput: {
-              username: "${username}",
-              email: "${email}",
-              password: "${password}"
-            }
-          )
-          {
-            _id,
-            username,
-            email,
-            password
-          }
-        }
-      `
-    };
-    const res = await this.fetchApi(reqBody);
-    if(res) {
-      props.loginUser({email, password});
+  const toggleTermsOfUse = () => {
+    setRegisterInput({...registerInput, termsOfUse: !registerInput.termsOfUse})
+  }
+
+  const handleSubmit = event => {
+    if(event.key === 'Enter') {
+      submit()
     }
+  }
+
+  const togglePrompt = () => {
+    setTermsOfUsePrompt(!termsOfUsePrompt)
+  }
+
+  const submit = () => {
+    if(registerInput.termsOfUse) {
+      props.registerUser(registerInput)
+    }
+  }
+
+  const handleClose = () => {
+    setTermsOfUsePrompt(false)
+  }
+
+  const termsOfUse = () => {
+    return (
+      <Dialog
+      open={termsOfUsePrompt}
+      onClose={handleClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Terms of Service</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This application is for demonstration purposes only. It is not offered as a service for any commercial use. Any data is publicly accessible and subject to modification or deletion.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions align="center">
+          <Button onClick={handleClose} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
   }
 
   return (
     <div>
-      <Paper>
-        <form noValidate autoComplete="off">
+      <Paper className={classes.root}>
+        <Typography variant="h5" component="h3" align="center">
+          Register
+        </Typography>
+        <Box>
           <TextField
             onChange={handleRegisterInput('username')}
             id="outlined-username-input"
@@ -53,7 +104,10 @@ const Register = props => {
             autoComplete="username"
             margin="normal"
             variant="outlined"
+            value={registerInput.username}
           />
+        </Box>
+        <Box>
           <TextField
             onChange={handleRegisterInput('email')}
             id="outlined-email-input"
@@ -63,9 +117,13 @@ const Register = props => {
             autoComplete="email"
             margin="normal"
             variant="outlined"
+            value={registerInput.email}
           />
+        </Box>
+        <Box>
           <TextField
             onChange={handleRegisterInput('password')}
+            onKeyPress={handleSubmit}
             id="outlined-password-input"
             label="Password"
             type="password"
@@ -73,11 +131,22 @@ const Register = props => {
             autoComplete="password"
             margin="normal"
             variant="outlined"
+            value={registerInput.password}
           />
-          <Button onClick={() => registerUser(registerInput)}>Register</Button>
+        </Box>
+        <Box display="flex" flexDirection="column">
+          <Checkbox
+            value={registerInput.termsOfUse}
+            onClick={() => toggleTermsOfUse()}
+          />
+          <Typography>I agree with the <b onClick={() => togglePrompt()}>Terms of Use</b></Typography>.
+        </Box>
+        <Box>
+          <Button onClick={() => submit()}>Register</Button>
           <Button onClick={() => props.history.push("/")}>Cancel</Button>
-        </form>
+        </Box>
       </Paper>
+      {termsOfUse()}
     </div>
   )
 }

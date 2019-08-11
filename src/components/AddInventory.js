@@ -1,15 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, ButtonGroup } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import Typography from '@material-ui/core/Typography';
+import BarcodeIcon from '@material-ui/icons/ViewWeek';
+import Box from '@material-ui/core/Box';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Card from '@material-ui/core/Card';
 import { withRouter } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(5, 20),
+    marginTop: theme.spacing(10),
+    minHeight: theme.spacing(100)
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200
+  },
+  staticInfo: {
+    padding: theme.spacing(1)
+  },
+  buttonSpacing: {
+    margin: theme.spacing(2),
+  }
+}));
 
 const AddInventory = props => {
+  const classes = useStyles();
 
   const [mode, setMode] = useState('DEFAULT');
+  const [redirect, setRedirect] = useState('DEFAULT');
+  const [ isSearching, setIsSearching ] = useState(false);
+  const [currentStock, setCurrentStock] = useState({})
 
   const [inventoryInput, setInventoryInput] = useState({
     upc:'',
-    price: '0.00',
-    quantity: '0',
+    price: '',
+    quantity: '',
     title: '',
     stockId: ''
   })
@@ -22,33 +56,48 @@ const AddInventory = props => {
 
   useEffect(() => {
     if(props.location.params) {
+      const { upc, redirect } = props.location.params;
       setInventoryInput({
-        ...inventoryInput, upc: props.location.params.upc
+        ...inventoryInput, upc
       })
-      findProduct()
+      if(redirect) {
+        setRedirect(redirect);
+      }
     }
-  }, []);
+  }, [setInventoryInput]);
 
 
   const handleInput = property => event => {
-
+    const value = event.target.value;
     setInventoryInput({
-      ...inventoryInput, [property]: event.target.value
+      ...inventoryInput, [property]: value
     })
+    return
   }
 
-  const handleUpcInput = (event) => {
+  const handleUpcInput = async (event) => {
     setMode('DEFAULT');
     const upc = event.target.value;
-    setInventoryInput({...inventoryInput, upc});
+    await setInventoryInput({...inventoryInput, upc});
   }
 
-  const findProduct = async () => {
-    if(inventoryInput.upc.length !== 12) {
-      return;
+  useEffect(() => {
+    if(inventoryInput.upc) {
+      if(!isSearching) {
+        setIsSearching(true);
+        setTimeout(() => {
+          findProduct();
+          setIsSearching(false);
+        }, 1000);
+      }
     }
-    const stock = props.currentLocation.inventory.find(stock => stock.item.upc === inventoryInput.upc);
+  }, [inventoryInput.upc])
+
+  const findProduct = async () => {
+    let stock = props.currentLocation.inventory.find(stock => stock.item.upc === inventoryInput.upc);
     if(stock) {
+      stock = { ...stock, price: parseFloat(stock.price).toFixed(2) };
+      setCurrentStock(stock);
       setInventoryInput({
         ...inventoryInput,
         title: stock.item.title,
@@ -56,7 +105,7 @@ const AddInventory = props => {
         quantity: stock.quantity,
         stockId: stock._id
       });
-      setMode('UPDATE_STOCK')
+      setMode('UPDATE_STOCK');
     } else {
       const item = await getItem();
       if(item) {
@@ -69,13 +118,12 @@ const AddInventory = props => {
         setMode('CREATE_STOCK');
       } else {
         setMode('CREATE_ITEM');
-        const productSuggestions = await getProductSuggestions(inventoryInput.upc);
+        const productSuggestions = await getProductSuggestions(inventoryInput.upc)
         if(productSuggestions) {
           setProductSuggestions({
-            ...productSuggestions,
             title: productSuggestions.titleSuggestions,
             brand: productSuggestions.brandSuggestions,
-            price: [productSuggestions.priceSuggestion]
+            price: productSuggestions.priceSuggestions
           });
         }
       }
@@ -89,6 +137,7 @@ const AddInventory = props => {
           item(upc: "${inventoryInput.upc}") {
               title
               brand
+              upc
           }
         }
       `
@@ -100,7 +149,6 @@ const AddInventory = props => {
   }
 
   const createItem = async () => {
-    console.log(inventoryInput)
     const reqBody = {
       query: `
         mutation {
@@ -138,12 +186,14 @@ const AddInventory = props => {
             }
           )
           {
+            _id
+            price
+            quantity
             item {
+              title
               upc
               brand
             }
-            price,
-            quantity
           }
         }
       `
@@ -168,6 +218,7 @@ const AddInventory = props => {
           )
           {
             item {
+              title
               upc
               brand
             } 
@@ -187,31 +238,55 @@ const AddInventory = props => {
     let item;
     if(mode === 'CREATE_ITEM') {
       item = await createItem();
-      if(!item) {
-        throw new Error('Item not created!')
-      }
     }
     let inventory = props.currentLocation.inventory;
     if((mode === 'CREATE_ITEM' && item) || mode === 'CREATE_STOCK') {
-      const createdStock = await createStock();
+      const createdStock = await await createStock();
       if(createdStock) {
-        inventory.push(createdStock);
+        const stockIndex = inventory.push(createdStock) - 1;
         props.updateInventory(inventory);
+        handleRedirect(stockIndex);
         props.history.goBack();
       }
     }
     if(mode === 'UPDATE_STOCK') {
       const updatedStock = await updateStock();
+      let stockIndex
       if(updatedStock) {
-        const stockIndex = inventory.findIndex((stock) => {
-          return stock.item.upc === updatedStock.item.upc;
-        })
+        stockIndex = inventory.findIndex(stock => stock.item.upc === updatedStock.item.upc);
         inventory[stockIndex] = updatedStock;
-        props.updateInventory(inventory);
+        handleRedirect(stockIndex)
       }
-      props.history.goBack();
     }
   }
+
+  const handleRedirect = (stockIndex) => {
+    switch(redirect) {
+      case 'CHECKOUT':
+        const stock = props.currentLocation.inventory[stockIndex];
+        let cart = props.cart;
+        props.updateCart(
+          [
+            ...cart,
+            {
+              title: stock.item.title,
+              price: stock.price,
+              quantity: 1,
+              upc: stock.item.upc
+            }
+          ]
+        )
+        props.history.push('/checkout');
+        break;
+      case 'INVENTORY':
+        props.history.push({
+          pathname: '/inventory',
+          params: {searchInput: props.location.params.searchInput}
+        });
+        break;
+    }
+  }
+
 
   const handleSuggestionSelection = (property, value) => {
     setInventoryInput({
@@ -226,7 +301,7 @@ const AddInventory = props => {
         productSuggestions(upc: "${upc}") {
           titleSuggestions
           brandSuggestions
-          priceSuggestion
+          priceSuggestions
         }
       }
       `
@@ -240,19 +315,24 @@ const AddInventory = props => {
   const suggestions = (prop) => {
     if(productSuggestions[prop]) {
       return (
-        <ButtonGroup size="small" aria-label="small outlined button group">
+        <List>
           {
-            productSuggestions[prop].map(suggestion => {
+            productSuggestions[prop].slice(0,2).map((suggestion, i) => {
             return (
-                <Button
-                  key={suggestion}
+                <ListItem
+                  key={i}
+                  button
                   onClick={() => handleSuggestionSelection(prop, suggestion)}
+                  display="block"
                 >
-                  {suggestion}
-                </Button>
-            )
-          })}
-        </ButtonGroup>         
+                  <ListItemText>
+                    {suggestion}
+                  </ListItemText>
+                </ListItem>
+                )
+            })
+          }   
+        </List>
       )
     }
   }
@@ -261,17 +341,19 @@ const AddInventory = props => {
     return (
       <>
         <TextField
+          className={classes.buttonSpacing}
           onChange={(e) => handleUpcInput(e)}
-          id="upc"
-          label="upc"
-          type="text"
-          name="upc"
-          autoComplete="text"
-          margin="normal"
-          variant="outlined"
+          id="search-field"
           value={inventoryInput.upc}
+          placeholder="UPC"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <BarcodeIcon />
+              </InputAdornment>
+            ),
+          }}
         />
-        <Button onClick={() => findProduct(inventoryInput.upc)}>Find</Button>
       </>
     )
   }
@@ -283,7 +365,7 @@ const AddInventory = props => {
           <TextField
             onChange={handleInput('title')}
             id="title"
-            label="title"
+            label="Title"
             type="text"
             name="title"
             autoComplete="text"
@@ -296,7 +378,13 @@ const AddInventory = props => {
       )
     }
     else if (inventoryInput.title) {
-      return <div>{inventoryInput.title}</div>
+      return (
+        <Card className={classes.staticInfo}>
+          <Typography variant="h6" align="center">
+            {inventoryInput.title}
+          </Typography>
+        </Card>
+      )
     }
   }
 
@@ -325,41 +413,84 @@ const AddInventory = props => {
   }
 
   const price = () => {
+
+    const getPriceDifference = () => {
+      if(+inventoryInput.quantity) {
+        const difference = (parseFloat(inventoryInput.price) - parseFloat(currentStock.price)).toFixed(2);
+        if(difference > 0) {
+          return (<Typography style={{color: 'green'}}>{`+${difference}`}</Typography>)
+        } else if (difference < 0) {
+          return (<Typography style={{color: 'red'}}>{`${difference}`}</Typography>)
+        } else {
+          return ''
+        }
+      }
+    }
+
     if(mode !== 'DEFAULT') {
       return (
         <>
-          <TextField
-            onChange={handleInput('price')}
-            id="price"
-            label="price"
-            type="text"
-            name="price"
-            autoComplete="text"
-            margin="normal"
-            variant="outlined"
-            value={inventoryInput.price}
-          />
-          {suggestions('price')}
+          <Box display="flex" flexDirection="row">
+            <TextField
+              onChange={handleInput('price')}
+              id="price"
+              label="Price"
+              type="text"
+              name="price"
+              autoComplete="text"
+              margin="normal"
+              variant="outlined"
+              value={inventoryInput.price}
+            />
+            <Box>
+              {getPriceDifference()}
+            </Box>
+          </Box>
+          <Box>
+            {suggestions('price')}
+          </Box>
         </>
       )
     }
   }
 
-  const quantity = () => {
+  const quantity = props => {
+
+    const getQuantityDifference = () => {
+      if(+inventoryInput.quantity) {
+        const difference = +inventoryInput.quantity - +currentStock.quantity;
+        if(difference > 0) {
+          return (<Typography style={{color: 'green'}}>{`+${difference}`}</Typography>)
+        } else if (difference < 0) {
+          return (<Typography style={{color: 'red'}}>{`${difference}`}</Typography>)
+        } else {
+          return ''
+        }
+      }
+    }
+
     if(mode !== 'DEFAULT') {
       return (
         <>
-          <TextField
-            onChange={handleInput('quantity')}
-            id="quantity"
-            label="quantity"
-            type="text"
-            name="quantity"
-            autoComplete="text"
-            margin="normal"
-            variant="outlined"
-            value={inventoryInput.quantity}
-          />
+          <Box display="flex" flexDirection="row">
+            <TextField
+              onChange={handleInput('quantity')}
+              id="quantity"
+              label="Total Quantity"
+              type="text"
+              name="quantity"
+              autoComplete="text"
+              margin="normal"
+              variant="outlined"
+              value={inventoryInput.quantity}
+            />
+            <Box>
+              {getQuantityDifference()}
+            </Box>
+          </Box>
+          <Box>
+
+          </Box>
         </>
       )
     }
@@ -368,14 +499,28 @@ const AddInventory = props => {
   const submit = () => {
     if(mode === 'UPDATE_STOCK' || mode === 'CREATE_STOCK') {
       return (
-        <Button onClick={() => handleSubmit()}>Update</Button>
+        <>
+          <Button className={classes.buttonSpacing} variant="outlined" onClick={() => handleSubmit()}>Update</Button>
+          <Button className={classes.buttonSpacing} variant="outlined" onClick={() => props.history.goBack()}>Cancel</Button>
+        </>
       )
     }
     else if(mode === 'CREATE_ITEM') {
       return (
         <>
-          <Button onClick={() => handleSubmit()}>Create</Button>
-          <Button onClick={() => props.history.goBack()}>Cancel</Button>
+          <Box align="center">
+            <Button className={classes.buttonSpacing} variant="outlined" onClick={() => handleSubmit()}>Create</Button>
+            <Button className={classes.buttonSpacing} variant="outlined" onClick={() => props.history.goBack()}>Cancel</Button>
+          </Box>
+        </>
+      )
+    }
+    else {
+      return (
+        <>
+          <Box align="center">
+            <Button className={classes.buttonSpacing} variant="outlined" onClick={() => props.history.goBack()}>Cancel</Button>
+          </Box>
         </>
       )
     }
@@ -384,15 +529,29 @@ const AddInventory = props => {
   if(props.currentLocation) {
     return (
       <div>
-        <h3>Edit Inventory</h3>
-        <form noValidate autoComplete="off">
-          {upc()}
-          {title()}
-          {brand()}
-          {price()}
-          {quantity()}
-          {submit()}
-        </form>
+        <Paper className={classes.root}>
+          <Typography variant="h5" component="h3" align="center">
+            Edit Stock
+          </Typography>
+          <Box>
+            {upc()}
+          </Box>
+          <Box>
+            {title()}
+          </Box>
+          <Box>
+            {brand()}
+          </Box>
+          <Box>
+            {price()}
+          </Box>
+          <Box>
+            {quantity()}
+          </Box>
+          <Box>
+            {submit()}
+          </Box>
+        </Paper>
       </div>
     )
   } else {
