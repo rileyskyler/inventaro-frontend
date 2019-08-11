@@ -112,7 +112,6 @@ const root = {
     try {
       const itemExists = await Item.findOne({upc: args.itemInput.upc});
       if(itemExists) {
-        console.log('itemExists')
         throw new Error("Item already exists!")
       }
       else {
@@ -135,8 +134,16 @@ const root = {
   createStock: async (args, req) => {
     try {
       const location = await Location.findById(args.stockInput.locationId);
-      if(!location) {
+      if(!location ) {
         throw new Error("Location does not exist!");
+      }
+      const stockExists = location.inventory.indexOf( async (stockId) => {
+        const itemId = (await Stock.findById(stockId)).item;
+        const upc = (await Item.findById(itemId)).upc;
+        return upc === args.stockInput.upc;
+      })
+      if(stockExists > -1) {
+        throw new Error("Stock already exists!");
       }
       else {
         const user = await User.findById(req.userId);
@@ -149,22 +156,22 @@ const root = {
             throw new Error("Item with that UPC does not exist");
           }
           else {
+            const price =`${parseInt(args.stockInput.price).toFixed(2)}`
             const stock = new Stock({
-              price: args.stockInput.price,
+              price,
               quantity: args.stockInput.quantity,
               item,
               location
             });
             const res = await stock.save();
-
             location.inventory.push(stock);
             await location.save();
             return {
               ...res._doc,
               _id: res.id,
               location: {
-                ...item._doc,
-                _id: item.id
+                ...location._doc,
+                _id: location.id
               },
               item: {
                 ...item._doc,
@@ -181,30 +188,33 @@ const root = {
   },
   updateStock: async (args, req) => {
     try {
-      const stock = await Stock.findById(args.updateStockInput.stockId);
-      console.log(stock)
+      let stock = await Stock.findById(args.updateStockInput.stockId);
       if(!stock) {
         throw new Error("Stock does not exist!");
       }
       else {
         const location = await Location.findById(stock.location);
-
         if(!location.users.includes(req.userId)) {
           throw new Error("User does not have permission to edit this stock!");
         }
         else {
           const item = await Item.findById(stock.item);
-          console.log('item')
-          stock.price = args.updateStockInput.price;
-          stock.quantity = args.updateStockInput.quantity;
-          
-          // console.log(stock)
+          stock.price = args.updateStockInput.price,
+          stock.quantity = args.updateStockInput.quantity 
           const res = await stock.save()
-          console.log('res',res)
-          return {
-            price: stock.price,
-            quantity: stock.quantity,
-            item
+          if(res) {
+            return {
+              ...res._doc,
+              _id: res.id,
+              item: {
+                ...item._doc,
+                _id: item.id
+              },
+              location: {
+                ...location._doc,
+                _id: location.id
+              },
+            }
           }
         }
       }
@@ -214,16 +224,42 @@ const root = {
     }
   },
   createLocation: async (args, req) => {
+    const title = args.locationInput.title.toUpperCase();
     try {
-      const locationExists = await User.findOne({title: args.locationInput.title});
+      const locationExists = await Location.findOne({title});
       if(locationExists) {
         throw new Error("Location already exists!");
       }
       else {
         const user = await User.findById(req.userId);
-        const location = new Location({
-          title: args.locationInput.title
-        });
+        const location = new Location({title});
+        location.users.push(user);
+        user.locations.push(location);
+        const res = await location.save();
+        await user.save();
+        return {
+          ...res._doc,
+          _id: res.id,
+          users: locationUsers.bind(this, res.users)
+        }
+      }
+    }
+    catch (err) {
+      throw err
+    }
+  },
+  joinLocation: async (args, req) => {
+    const title = args.locationInput.title.toUpperCase();
+    try {
+      const location = await Location.findOne({title});
+      if(!location) {
+        throw new Error("Location does not exist!");
+      }
+      else {
+        const user = await User.findById(req.userId);
+        if(user.locations.includes(location._id)) {
+          throw new Error("User has already joined this location!")
+        }
         location.users.push(user);
         user.locations.push(location);
         const res = await location.save();
@@ -286,7 +322,7 @@ const root = {
   },
   productSuggestions: async (args) => {
     try {
-      let priceSuggestion = 0.00;
+      let priceSuggestions = [];
       let titleSuggestions = [];
       let brandSuggestions = [];
       const { data } = await axios.get(`https://api.upcitemdb.com/prod/trial/lookup?upc=${args.upc}`);
@@ -295,26 +331,22 @@ const root = {
       }
       else if (data.code === 'OK') {
         data.items.forEach(item => {
-          if(!brandSuggestions.includes(item.brand)) {
-            brandSuggestions.push(item.brand);
-          }
-          if(item.offers) {
-            priceSuggestion = (item.offers.reduce((accumulator, offer) => {
-              if(!titleSuggestions.includes(offer.title)) {
-                titleSuggestions.push(offer.title);
-              }
-              return accumulator + offer.price;
-            }, 0) / item.offers.length);
-          }
-          else if(item.lowest_recorded_price && item.highest_recorded_price) {
-            priceSuggestion = (item.lowest_recorded_price  + item.highest_recorded_price) / 2;
-          }
+          brandSuggestions = [ ...new Set([ ...brandSuggestions, item.brand.toUpperCase() ]) ];
+          titleSuggestions = [ ...new Set([
+            ...titleSuggestions, item.title.toUpperCase(),
+            ...(item.offers || []).map(({ title }) =>  title.toUpperCase())
+          ])];
+          priceSuggestions = [ ...new Set([
+              ...priceSuggestions,
+              ...[((item.offers || []).reduce((acc, { price }) => acc + price, 0) / (item.offers.length || 1)).toFixed(2)].filter(p => p > 0),
+              ((item.lowest_recorded_price  + item.highest_recorded_price) / 2).toFixed(2)
+          ])]
         })
       }
       return {
         titleSuggestions,
         brandSuggestions,
-        priceSuggestion: priceSuggestion.toFixed(2) + ''
+        priceSuggestions
       };
     }
     catch (err) {
