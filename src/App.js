@@ -61,7 +61,7 @@ class App extends React.Component {
     };
     let res;
     try {  
-      res = await fetch('http://localhost:1337/api', {
+      res = await fetch('localhost:1337/api', {
         method: 'POST',
         body: JSON.stringify(reqBody),
         headers
