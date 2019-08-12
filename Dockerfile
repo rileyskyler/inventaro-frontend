@@ -7,6 +7,6 @@ RUN npm run build
 
 # stage: 2
 FROM nginx:alpine
-COPY — from=react-build /app/build /var/www/inventaro.io/html
+COPY — from=react-build /app/build /var/www/inventaro.io/html/
 EXPOSE 80
 CMD [“nginx”, “-g”, “daemon off;”]
