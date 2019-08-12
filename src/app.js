@@ -7,9 +7,9 @@ const http = require('http');
 const fs = require('fs');
 const cors = require('cors');
 
-const Logger = require('./util/Logger');
+const Logger = require('./util/logger');
 const RootResolver = require('./resolvers/root');
-const Auth = require('./util/Auth');
+const Auth = require('./util/auth');
 
 dotenv.config();
 
