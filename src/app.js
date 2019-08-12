@@ -40,7 +40,7 @@ const main = async (app) => {
       fs.readFileSync('./src/schema.gql', 'utf8')
     ),
     rootValue: RootResolver,
-    graphiql: true,
+    graphiql: process.env.GRAPHIQL === 'true',
   }));
 };
 
