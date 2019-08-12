@@ -18,7 +18,6 @@ import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    // width: '100%',
     marginTop: theme.spacing(12),
     marginBottom: theme.spacing(10)
   },
