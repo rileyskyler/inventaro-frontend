@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
 
 function ButtonChoice(props) {
   const classes = useStyles();
-  if(props.location === '/') {
+  if(props.location === '/' && !props.token) {
     return (
       <Box>
         <Button onClick={() => props.history.push('/login')} color="inherit">Login</Button>
@@ -69,6 +69,7 @@ function Navbar(props) {
             location={props.location.pathname}
             history={props.history}
             currentLocation={props.currentLocation}
+            token={props.token}
           />
         </Toolbar>
       </AppBar>

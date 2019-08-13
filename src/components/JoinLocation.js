@@ -69,7 +69,7 @@ function JoinLocation(props) {
         </Box>
           'Demo'
         <Box>
-          <Button onClick={() => joinLocation(locationInput)}>Join</Button>
+          <Button onClick={() => joinLocation()}>Join</Button>
           <Button onClick={() => props.history.goBack()}>Cancel</Button>
         </Box>
       </Paper>

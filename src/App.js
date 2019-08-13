@@ -43,17 +43,6 @@ class App extends React.Component {
     this.logoutUser = this.logoutUser.bind(this);
   }
 
-  // async componentDidMount() {
-  //   if(this.state.token) {
-  //     await this.getUser();
-  //     //for development
-  //     await this.chooseLocation(this.state.user.locations[0]);
-  //   }
-  //   this.props.history.push({
-  //     pathname: '/register'
-  //   });
-  // }
-
   async fetchApi(reqBody) {
     let headers = {
       'Content-Type': 'application/json',
