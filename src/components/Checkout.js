@@ -287,14 +287,14 @@ const Checkout = props => {
                 variant="outlined"
                 color="secondary"
                 className={classes.payButton}
-                onChange={() => props.updateCart([])}
+                onClick={() => props.updateCart([])}
               >
                 Pay {priceFormat(total)}
               </Button>
               <Button
                 variant="outlined"
                 className={classes.payButton}
-                onChange={() => props.updateCart([])}
+                onClick={() => props.updateCart([])}
               >
                 Cancel
               </Button>
