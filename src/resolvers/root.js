@@ -249,20 +249,22 @@ const root = {
     }
   },
   joinLocation: async (args, req) => {
-    const title = args.locationInput.title.toUpperCase();
+    const title = args.joinLocationInput.title.toUpperCase();
     try {
       const location = await Location.findOne({title});
+
       if(!location) {
         throw new Error("Location does not exist!");
       }
       else {
         const user = await User.findById(req.userId);
         if(user.locations.includes(location._id)) {
-          throw new Error("User has already joined this location!")
+          throw new Error("User has already joined this location!");
         }
         location.users.push(user);
         user.locations.push(location);
         const res = await location.save();
+        console.log(res)
         await user.save();
         return {
           ...res._doc,
@@ -272,7 +274,7 @@ const root = {
       }
     }
     catch (err) {
-      throw err
+      throw err;
     }
   },
   createUser: async (args) => {
