@@ -14,6 +14,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import JoinLocation from './components/JoinLocation';
+import Notifications from './components/Notifications';
 
 const styles = makeStyles(theme => ({
   root: {
@@ -50,14 +51,12 @@ class App extends React.Component {
     };
     let res;
     try {  
-      res = await fetch('https://notifar.io/api', {
+      res = await fetch('http://localhost:1337/api', {
         method: 'POST',
         body: JSON.stringify(reqBody),
         headers
       })
-      if(res.status === 200) {
-        return res.json();
-      }
+      return res.json();
     }
     catch (err) {
       throw err
@@ -312,6 +311,7 @@ class App extends React.Component {
           </Switch>
         </Box>
         {this.state.token ? <NavBottom /> : null}
+        {/* <Notifications /> */}
       </div>
     );
   }

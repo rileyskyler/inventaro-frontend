@@ -26,15 +26,20 @@ function Login(props) {
     email: '',
     password: ''
   });
+
   
   
   const handleLoginInput = option => event => {
     setLoginInput({...loginInput, [option]: event.target.value});
   }
+
+  const handleLogin = () => {
+    props.loginUser(loginInput)
+  }
   
   const handleSubmit = event => {
     if(event.key === 'Enter') {
-      props.loginUser(loginInput)
+      handleLogin();
     }
   }
 
@@ -49,7 +54,7 @@ function Login(props) {
             onChange={handleLoginInput('email')}
             className={classes.textField}
             id="email"
-            label="Username"
+            label="Email"
             type="email"
             name="email"
             autoComplete="email"
@@ -67,7 +72,7 @@ function Login(props) {
             label="Password"
             type="password"
             name="password"
-            autoComplete="email"
+            autoComplete="password"
             margin="normal"
             variant="outlined"
             value={loginInput.password}
