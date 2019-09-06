@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import ReactMarkdown from 'react-markdown';
 
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 
@@ -28,10 +27,7 @@ function Landing() {
 
   return (
     <div className={classes.root}>
-      test
-      {/* <ReactMarkdown 
-        source={markdown}
-      /> */}
+      {/* <ReactMarkdown source={markdown} /> */}
     </div>
   );
 }

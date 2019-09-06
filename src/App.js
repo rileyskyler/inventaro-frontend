@@ -45,7 +45,7 @@ class App extends React.Component {
     this.logoutUser = this.logoutUser.bind(this);
   }
 
-  fetchApi(reqBody) {
+  async fetchApi(reqBody) {
     let headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${this.state.token}`
@@ -56,7 +56,7 @@ class App extends React.Component {
         MODE === "production"
           ? "inventaro.io/api"
           : "http://localhost:1337/api";
-      res = fetch(url, {
+      res = await fetch(url, {
         method: "POST",
         body: JSON.stringify(reqBody),
         headers
@@ -67,7 +67,7 @@ class App extends React.Component {
     }
   }
 
-  chooseLocation(location) {
+  async chooseLocation(location) {
     const reqBody = {
       query: `
         query {
@@ -88,7 +88,7 @@ class App extends React.Component {
         }
       `
     };
-    const res = this.fetchApi(reqBody);
+    const res = await this.fetchApi(reqBody);
     if (res) {
       const updatedLocation = res.data.location;
       this.setState({ currentLocation: updatedLocation });
@@ -100,7 +100,7 @@ class App extends React.Component {
     this.props.history.push("/");
   }
 
-  registerUser({ username, email, password }) {
+  registerUser = async ({ username, email, password }) => {
     const reqBody = {
       query: `
         mutation {
@@ -120,29 +120,29 @@ class App extends React.Component {
         }
       `
     };
-    const res = this.fetchApi(reqBody);
+    const res = await this.fetchApi(reqBody);
     if (res) {
       this.loginUser({ email, password });
     }
-  }
+  };
 
-  updateInventory(inventory) {
+  async updateInventory(inventory) {
     this.setState(({ currentLocation }) => {
       return { currentLocation: { ...currentLocation, inventory } };
     });
   }
 
-  updateCart(cart) {
+  async updateCart(cart) {
     this.setState({ cart });
   }
 
-  getUser() {
+  async getUser() {
     const reqBody = {
       query: `
         query{ user{ username email locations{ _id title } } }
       `
     };
-    const res = this.fetchApi(reqBody);
+    const res = await this.fetchApi(reqBody);
     if (res) {
       const user = res.data.user;
       this.setState({ user });
@@ -150,7 +150,7 @@ class App extends React.Component {
     }
   }
 
-  loginUser({ email, password }) {
+  async loginUser({ email, password }) {
     const reqBody = {
       query: `
         query{
@@ -164,14 +164,16 @@ class App extends React.Component {
         }
       `
     };
-    const res = this.fetchApi(reqBody);
+    const res = await this.fetchApi(reqBody);
     if (res.data) {
       const token = res.data.login.token;
-      this.setState({ token });
-      this.getUser();
+      await this.setState({ token });
+      await this.getUser();
     }
     return res;
   }
+
+  handleError = {};
 
   render() {
     const landing = () => {

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import { withRouter } from "react-router-dom";
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
+import { withRouter } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -20,20 +20,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function JoinLocation(props) {
+
   const classes = useStyles();
 
   const [locationInput, setLocationInput] = useState({
-    title: ""
+    title: ''
   });
 
   const handleLocationInput = option => event => {
-    setLocationInput({
-      ...locationInput,
-      [option]: event.target.value.toUpperCase()
-    });
-  };
+    setLocationInput({ ...locationInput, [option]: event.target.value.toUpperCase() });
+  }
 
-  const joinLocation = () => {
+  const joinLocation = async () => {
     const reqBody = {
       query: `
         mutation {
@@ -43,12 +41,12 @@ function JoinLocation(props) {
         }
       `
     };
-    const res = props.fetchApi(reqBody);
-    if (res) {
+    const res = await props.fetchApi(reqBody);
+    if(res) {
       props.getUser();
-      props.history.goBack();
+      props.history.goBack()
     }
-  };
+  }
 
   return (
     <div>
@@ -58,7 +56,7 @@ function JoinLocation(props) {
         </Typography>
         <Box>
           <TextField
-            onChange={handleLocationInput("title")}
+            onChange={handleLocationInput('title')}
             id="title"
             label="title"
             type="text"
@@ -69,14 +67,14 @@ function JoinLocation(props) {
             value={locationInput.title}
           />
         </Box>
-        'Demo'
+          'Demo'
         <Box>
           <Button onClick={() => joinLocation()}>Join</Button>
           <Button onClick={() => props.history.goBack()}>Cancel</Button>
         </Box>
       </Paper>
     </div>
-  );
+  )
 }
 
 export default withRouter(JoinLocation);
