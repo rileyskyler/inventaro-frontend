@@ -23,8 +23,6 @@ const styles = makeStyles(theme => ({
   }
 }));
 
-const MODE = process.env.NODE_ENV;
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -52,11 +50,7 @@ class App extends React.Component {
     };
     let res;
     try {
-      const url =
-        MODE === "production"
-          ? "inventaro.io/api"
-          : "http://localhost:1337/api";
-      res = await fetch(url, {
+      res = await fetch(API_URL, {
         method: "POST",
         body: JSON.stringify(reqBody),
         headers

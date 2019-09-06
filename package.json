@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open --hot",
-    "build": "webpack --mode production"
+    "start": "webpack-dev-server --env.API_URL=http://localhost:1337/api --mode development --open --hot",
+    "build": "webpack --env.API_URL=notifar.io/api --mode production"
   },
   "keywords": [],
   "author": "",
