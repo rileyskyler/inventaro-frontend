@@ -26,15 +26,20 @@ function Login(props) {
     email: '',
     password: ''
   });
-
-  
   
   const handleLoginInput = option => event => {
     setLoginInput({...loginInput, [option]: event.target.value});
   }
 
-  const handleLogin = () => {
-    props.loginUser(loginInput)
+  const handleLogin = async () => {
+    const res = await props.loginUser(loginInput)
+    if(props.token) {
+      props.history.push('/locations')
+    }
+    else if(res.errors) {
+      const t = res.errors.map(({ message }) => message);
+      console.log(t)
+    }
   }
   
   const handleSubmit = event => {
@@ -79,7 +84,7 @@ function Login(props) {
           />
         </Box>
         <Box align="center">
-          <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
+          <Button onClick={() => handleLogin()}>Login</Button>
           <Button onClick={() => props.history.push('/')}>Cancel</Button>
         </Box>
       </Paper>
