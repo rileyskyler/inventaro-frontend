@@ -4,5 +4,4 @@ command = "npm run build"
 
 [context.mvp]
 publish = "public"
-command = "npm install"
 command = "npm run build"
