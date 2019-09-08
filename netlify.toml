@@ -2,6 +2,6 @@
 publish = "dist"
 command = "npm run build"
 
-[context."mvp"]
+[context.mvp]
 publish = "build"
 command = "npm run build"
