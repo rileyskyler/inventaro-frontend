@@ -4,3 +4,4 @@ command = "npm run build"
 
 [context."mvp"]
 publish = "build"
+command = "npm run build"
