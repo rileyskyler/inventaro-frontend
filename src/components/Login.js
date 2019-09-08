@@ -27,14 +27,24 @@ function Login(props) {
     password: ''
   });
   
-  
   const handleLoginInput = option => event => {
     setLoginInput({...loginInput, [option]: event.target.value});
+  }
+
+  const handleLogin = async () => {
+    const res = await props.loginUser(loginInput)
+    if(props.token) {
+      props.history.push('/locations')
+    }
+    else if(res.errors) {
+      const t = res.errors.map(({ message }) => message);
+      console.log(t)
+    }
   }
   
   const handleSubmit = event => {
     if(event.key === 'Enter') {
-      props.loginUser(loginInput)
+      handleLogin();
     }
   }
 
@@ -49,7 +59,7 @@ function Login(props) {
             onChange={handleLoginInput('email')}
             className={classes.textField}
             id="email"
-            label="Username"
+            label="Email"
             type="email"
             name="email"
             autoComplete="email"
@@ -67,14 +77,14 @@ function Login(props) {
             label="Password"
             type="password"
             name="password"
-            autoComplete="email"
+            autoComplete="password"
             margin="normal"
             variant="outlined"
             value={loginInput.password}
           />
         </Box>
         <Box align="center">
-          <Button onClick={() => props.loginUser(loginInput)}>Login</Button>
+          <Button onClick={() => handleLogin()}>Login</Button>
           <Button onClick={() => props.history.push('/')}>Cancel</Button>
         </Box>
       </Paper>
