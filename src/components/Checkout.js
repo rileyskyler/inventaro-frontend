@@ -1,62 +1,62 @@
-import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Box from '@material-ui/core/Box';
-import InputBase from '@material-ui/core/InputBase';
-import BarcodeIcon from '@material-ui/icons/ViewWeek';
-import IconButton from '@material-ui/core/IconButton';
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
-import { withRouter } from 'react-router-dom';
+import React, { useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Box from "@material-ui/core/Box";
+import InputBase from "@material-ui/core/InputBase";
+import BarcodeIcon from "@material-ui/icons/ViewWeek";
+import IconButton from "@material-ui/core/IconButton";
+import AddIcon from "@material-ui/icons/Add";
+import RemoveIcon from "@material-ui/icons/Remove";
+import { withRouter } from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
+    width: "100%",
     padding: theme.spacing(2),
     marginTop: theme.spacing(25),
     marginBottom: theme.spacing(10),
-    overflowX: 'auto',
+    overflowX: "auto"
   },
   table: {
-    width: theme.spacing(85),
+    width: theme.spacing(85)
   },
   section: {
     margin: theme.spacing(1)
   },
   inputRoot: {
-    width: '100%',
+    width: "100%",
     padding: theme.spacing(2),
     marginTop: theme.spacing(10),
-    overflowX: 'auto',
-    position: 'fixed',
+    overflowX: "auto",
+    position: "fixed",
     left: 0
   },
   input: {
     marginLeft: 8,
     flex: 1,
-    fontSize: '40px',
-    textAlign: 'center'
+    fontSize: "40px",
+    textAlign: "center"
   },
   iconButton: {
     padding: 10,
-    height: '100%'
+    height: "100%"
   },
   divider: {
     width: 1,
     height: 28,
-    margin: 4,
+    margin: 4
   },
   purchase: {
     padding: theme.spacing(3),
@@ -65,9 +65,7 @@ const useStyles = makeStyles(theme => ({
   payButton: {
     margin: theme.spacing(5)
   }
-}))
-
-
+}));
 
 function priceFormat(price) {
   return `${parseInt(price).toFixed(2)}`;
@@ -85,7 +83,7 @@ const Prompt = props => {
         <DialogTitle id="alert-dialog-title">Item not found</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            A product with this UPC is not found at this location. 
+            A product with this UPC is not found at this location.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -102,100 +100,101 @@ const Prompt = props => {
       </Dialog>
     </div>
   );
-}
-
+};
 
 const Checkout = props => {
-  const [upcInput, setUpcInput] = useState('');
-  // const [prompts, togglePrompts] = useState({
-  //   noStock: false
-  // })
+  const [upcInput, setUpcInput] = useState("");
   const [open, setOpen] = React.useState(false);
   const classes = useStyles();
 
-  const togglePrompt = (prompt) => {
+  const togglePrompt = prompt => {
     switch (prompt) {
-      case 'NO_STOCK':
-        setOpen(true)
+      case "NO_STOCK":
+        setOpen(true);
         break;
       default:
         break;
     }
-
-  }
+  };
 
   const handleUpc = option => event => {
     const upc = event.target.value;
     setUpcInput(upc);
     if (upc.length === 12) {
-      const stock = props.currentLocation.inventory.find(stock => stock.item.upc === upc);
-      if(stock) {
+      const stock = props.currentLocation.inventory.find(
+        stock => stock.item.upc === upc
+      );
+      if (stock) {
         addToCart(stock);
-        setUpcInput('');
+        setUpcInput("");
       } else {
-        togglePrompt('NO_STOCK')
+        togglePrompt("NO_STOCK");
       }
     }
-  }
+  };
 
-  const addToCart = (stock) => {
+  const addToCart = stock => {
     let cart = props.cart;
-    const productIndex = cart.findIndex(product => stock.item.upc === product.upc);
-    if(productIndex > -1) {
-      cart[productIndex].quantity++
+    const productIndex = cart.findIndex(
+      product => stock.item.upc === product.upc
+    );
+    if (productIndex > -1) {
+      cart[productIndex].quantity++;
       props.updateCart(cart);
     } else {
-      props.updateCart(
-        [
-          ...cart,
-          {
-            title: stock.item.title,
-            brand: stock.item.brand,
-            price: stock.price,
-            quantity: 1,
-            upc: stock.item.upc
-          }
-        ]
-      )
+      props.updateCart([
+        ...cart,
+        {
+          title: stock.item.title,
+          brand: stock.item.brand,
+          price: stock.price,
+          quantity: 1,
+          upc: stock.item.upc
+        }
+      ]);
     }
-  }
+  };
 
   const handleClose = () => {
-    setUpcInput('')
+    setUpcInput("");
     setOpen(false);
-  }
+  };
 
   const handleAddInventory = () => {
     props.history.push({
-      pathname: '/inventory/add',
+      pathname: "/inventory/add",
       params: {
         upc: upcInput,
-        redirect: '/checkout'
+        redirect: "/checkout"
       }
-    })
-  }
+    });
+  };
 
   const adjustProductQuantity = (productIndex, operand) => {
     const cart = props.cart;
-    switch(operand){
-      case '+':
+    switch (operand) {
+      case "+":
         cart[productIndex].quantity++;
         props.updateCart(cart);
         break;
-      case '-':
+      case "-":
         cart[productIndex].quantity--;
         props.updateCart(cart);
         break;
       default:
         break;
     }
-  }
-  
+  };
 
-  let subtotal = 0, taxes = 0, total = 0;
-  if(props.cart.length) {
-    subtotal = props.cart.reduce((acc, {price, quantity}) => acc + (price * quantity), 0)
-    taxes = 0.00 * subtotal;
+  let subtotal = 0,
+    taxes = 0,
+    total = 0;
+  if (props.cart.length) {
+    subtotal = props.cart.reduce(
+      (acc, { price, quantity }) => acc + price * quantity,
+      0
+    );
+    taxes = 0.0 * subtotal;
     total = subtotal + taxes;
   }
 
@@ -203,9 +202,9 @@ const Checkout = props => {
     <div>
       <Paper className={classes.inputRoot}>
         <IconButton className={classes.iconButton}>
-          <BarcodeIcon/>
+          <BarcodeIcon />
         </IconButton>
-        <InputBase 
+        <InputBase
           onChange={handleUpc()}
           id="upc"
           label="upc"
@@ -223,94 +222,90 @@ const Checkout = props => {
       </Paper>
       <Paper className={classes.root}>
         <Box>
-        {
-          props.cart.length
-          ?
-          (
+          {props.cart.length ? (
             <>
               <Table>
-                <TableHead >
+                <TableHead>
                   <TableCell>Product</TableCell>
                   <TableCell>Brand</TableCell>
                   <TableCell>Quantity</TableCell>
                   <TableCell>Price</TableCell>
                 </TableHead>
                 <TableBody>
-                  {
-                    props.cart.map((product, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          {
-                            product.title.length >= 40
-                            ? product.title.slice(0, 40) + '...'
-                            : product.title
-                          }
-                        </TableCell>
-                        <TableCell>{product.brand}</TableCell>
-                        <TableCell>
-                          <RemoveIcon 
-                            style={{fontSize: 15, marginRight: '5'}} 
-                            onClick={() => adjustProductQuantity(i, '-')}
-                          />
-                          {product.quantity}
-                          <AddIcon 
-                            style={{fontSize: 15, marginLeft: '5'}}
-                            onClick={() => adjustProductQuantity(i, '+')}
-                          />
-                          </TableCell>
-                        <TableCell>{product.price}</TableCell>
-                      </TableRow>
-                    ))  
-                  }
+                  {props.cart.map((product, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        {product.title.length >= 40
+                          ? product.title.slice(0, 40) + "..."
+                          : product.title}
+                      </TableCell>
+                      <TableCell>{product.brand}</TableCell>
+                      <TableCell>
+                        <RemoveIcon
+                          style={{ fontSize: 15, marginRight: "5" }}
+                          onClick={() => adjustProductQuantity(i, "-")}
+                        />
+                        {product.quantity}
+                        <AddIcon
+                          style={{ fontSize: 15, marginLeft: "5" }}
+                          onClick={() => adjustProductQuantity(i, "+")}
+                        />
+                      </TableCell>
+                      <TableCell>{product.price}</TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
               <Table className={classes.purchase}>
-              <TableBody>
-                <TableRow>
-                  <TableCell rowSpan={3} />
-                  <TableCell colSpan={2}>Subtotal</TableCell>
-                  <TableCell align="right">{priceFormat(subtotal)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Tax</TableCell>
-                  <TableCell align="right">{`${(.00 * 100).toFixed(0)} %`}</TableCell>
-                  <TableCell align="right">{priceFormat(taxes)}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={2}>Total</TableCell>
-                  <TableCell align="right">{priceFormat(total)}</TableCell>
+                <TableBody>
+                  <TableRow>
+                    <TableCell rowSpan={3} />
+                    <TableCell colSpan={2}>Subtotal</TableCell>
+                    <TableCell align="right">{priceFormat(subtotal)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Tax</TableCell>
+                    <TableCell align="right">{`${(0.0 * 100).toFixed(
+                      0
+                    )} %`}</TableCell>
+                    <TableCell align="right">{priceFormat(taxes)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={2}>Total</TableCell>
+                    <TableCell align="right">{priceFormat(total)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
-            <Box align="center">
-              <Button
-                variant="outlined"
-                color="secondary"
-                className={classes.payButton}
-                onClick={() => props.updateCart([])}
-              >
-                Pay {priceFormat(total)}
-              </Button>
-              <Button
-                variant="outlined"
-                className={classes.payButton}
-                onClick={() => props.updateCart([])}
-              >
-                Cancel
-              </Button>
-            </Box>
+              <Box align="center">
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  className={classes.payButton}
+                  onClick={() => props.updateCart([])}
+                >
+                  Pay {priceFormat(total)}
+                </Button>
+                <Button
+                  variant="outlined"
+                  className={classes.payButton}
+                  onClick={() => props.updateCart([])}
+                >
+                  Cancel
+                </Button>
+              </Box>
             </>
-          )
-          :
-          (
+          ) : (
             <Typography>Cart is empty.</Typography>
-          )
-        }
+          )}
         </Box>
-        </Paper>
-        <Prompt open={open} handleAddInventory={handleAddInventory} handleClose={handleClose} />
+      </Paper>
+      <Prompt
+        open={open}
+        handleAddInventory={handleAddInventory}
+        handleClose={handleClose}
+      />
     </div>
-  )
-}
+  );
+};
 
 export default withRouter(Checkout);
