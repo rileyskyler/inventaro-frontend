@@ -1,0 +1,60 @@
+type Stock {
+    _id: ID
+    quantity: Int
+    item: Item
+}
+
+# add sale object
+
+type Item {
+    _id: ID
+    name: String
+    price: Int
+}
+
+type User {
+    _id: ID
+    username: String
+    password: String
+    email: String
+    locations: [Location]
+}
+
+type Location {
+    _id: ID
+    name: String
+    users: [User!]!
+    inventory: [Stock!]!
+}
+
+type Authentication {
+    userId: ID!
+    token: String!
+    tokenExpiration: String!
+}
+
+input UserInput {
+    username: String!
+    email: String!
+    password: String!
+}
+
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+type RootQuery {
+    users: [User!]!
+    user: User!
+    login(loginInput: LoginInput!) : Authentication!
+}
+
+type RootMutation {
+    createUser(userInput: UserInput): User!
+}
+
+schema {
+    query: RootQuery
+    mutation: RootMutation
+}
