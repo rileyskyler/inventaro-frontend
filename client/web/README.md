@@ -1,6 +1,6 @@
 <div style="text-align: center;">
   <h1>
-    Inventaro Front-End | <a href="http://github.com/rileyskyler/inventaro-backend">Back-End</a>
+    Inventaro Client
   </h1>
   <h3>
     Point of Sale and Inventory Management Software for a small retail store.

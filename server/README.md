@@ -1,3 +1,3 @@
-# Inventaro Back-End | [Front-End](http://github.com/rileyskyler/inventaro-frontend)
+# Inventaro Server
 ### Point of Sale (POS) and Inventory Management System
 
