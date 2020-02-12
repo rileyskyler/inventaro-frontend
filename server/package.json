@@ -6,7 +6,7 @@
   "scripts": {
     "database": "docker run postgres",
     "build": "tsc",
-    "start": "node ./build/src/App.js",
+    "start": "node ./build/App.js",
     "dev": "nodemon ./build/App.js && tsc --watch",
     "rapid": "npm run build && npm run start"
   },
