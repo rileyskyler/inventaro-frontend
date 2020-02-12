@@ -1,10 +1,18 @@
-import Express from "express";
+import Knex from "knex";
+const KnexConfig = require("../knexfile");
 
-const App = Express();
-const PORT = 1337 || process.argv[0];
+const { Model } = require("objection");
+const { Person } = require("./models/Person");
 
-App.get("/", (req: Express.Request, res: Express.Response) =>
-  res.send("Hello World!")
-);
+const knex = Knex(KnexConfig.development);
 
-App.listen(PORT, () => console.log(`Example app listening on port ${PORT}!`));
+Model.knex(knex);
+
+const main = async () => {
+  const person = await Person.query()
+    .findById(1)
+    .column("id")
+    .as("fart");
+};
+
+main().then(() => knex.destroy());
