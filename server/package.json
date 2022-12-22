@@ -19,7 +19,7 @@
     "graphql": "^14.4.2",
     "http": "0.0.0",
     "javascript-barcode-reader": "^0.4.15",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^5.6.4",
     "quagga": "^0.12.1",
     "winston": "^3.2.1"
